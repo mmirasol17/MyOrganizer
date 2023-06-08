@@ -5,12 +5,11 @@ export default function Header() {
   return (
     <header className="bg-gray-800">
       <nav className="container mx-auto flex justify-between items-center p-4">
-        <div className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2 text-white text-3xl">
           <img src="/images/favicon.ico" alt="MyOrganizer Logo" className="h-10 w-10" />
-          <Link to="/" className="text-white text-3xl">
-            MyOrganizer
-          </Link>
-        </div>
+          <p>MyOrganizer</p>
+        </Link>
+
         <ul className="flex items-center">
           <li>
             <Link to="/" className="text-gray-300 hover:text-white ml-4">

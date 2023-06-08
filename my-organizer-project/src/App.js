@@ -1,4 +1,7 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+import { auth } from "./firebase/FirebaseConfig";
+
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 
 import LoginPage from "./pages/Login";
@@ -9,6 +12,18 @@ import Footer from "./components/Footer";
 import NotFoundPage from "./pages/NotFound";
 
 function App() {
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (user) {
+        // User is logged in
+      } else {
+        // User is logged out
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
   return (
     <Router>
       <Header />

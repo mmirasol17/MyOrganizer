@@ -12,7 +12,7 @@ function LoginPage() {
     <div className="flex items-center justify-center">
       <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
         <div className="absolute inset-0 bg-gray-500 bg-opacity-25 backdrop-filter backdrop-blur-md flex items-center justify-center">
-          <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center w-1/3">
+          <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
             <h1 className="text-3xl font-bold mb-6">Welcome back to MyOrganizer!</h1>
             <form className="w-full">
               <div className="mb-6">
@@ -22,7 +22,8 @@ function LoginPage() {
                 <input
                   type="email"
                   id="email"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                  placeholder="Enter your email"
+                  className="shadow-md bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                 />
               </div>
               <div className="mb-6 relative">
@@ -33,7 +34,8 @@ function LoginPage() {
                   <input
                     type={passwordVisible ? "text" : "password"}
                     id="password"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10"
+                    placeholder="Enter your password"
+                    className="shadow-md bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500"
                   />
                   <button
                     type="button"
