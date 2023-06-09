@@ -16,6 +16,7 @@ function SignupPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [validConfirmPassword, setValidConfirmPassword] = useState(true);
+  const [signupError, setSignupError] = useState("");
 
   // * function to toggle password visibility
   const togglePasswordVisibility = () => {
@@ -80,25 +81,46 @@ function SignupPage() {
   // * function called when user submits the signup form
   const handleSignup = async (e) => {
     e.preventDefault();
-    if (validUsername && validEmail && validPassword && validConfirmPassword) {
-      let user = null;
-      try {
-        user = await createUserWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        console.error("We're sorry, there was an error with creating your account. Please try again later.", error);
-      }
-
-      try {
-        user = auth.currentUser;
-        console.log(username, email, user.uid);
-        const userDocRef = doc(db, "users", user.uid);
-        await setDoc(userDocRef, {
-          username: username,
-          email: email,
-        });
-        window.location.href = "/dashboard";
-      } catch (error) {
-        console.error("We're sorry, there was an issue with storing your account info", error);
+    if (username === "" || email === "" || password === "" || confirmPassword === "") {
+      setSignupError("Please fill out all the fields.");
+      if (username === "") setValidUsername(false);
+      if (email === "") setValidEmail(false);
+      if (password === "") setValidPassword(false);
+      if (confirmPassword === "") setValidConfirmPassword(false);
+    } else {
+      setSignupError("");
+      if (validUsername && validEmail && validPassword && validConfirmPassword) {
+        let user = null;
+        try {
+          user = await createUserWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+          if (error.code === "auth/email-already-in-use") {
+            setSignupError("An account with this email already exists.");
+            setValidEmail(false);
+          } else if (error.code === "auth/invalid-email") {
+            setSignupError("This email does not exist.");
+            setValidEmail(false);
+          } else if (error.code === "auth/weak-password") {
+            setSignupError("Your password is too weak.");
+            setValidPassword(false);
+          } else {
+            setSignupError("There was an issue with creating your account.");
+          }
+        }
+        try {
+          await setDoc(doc(db, "users", user.user.uid), {
+            username: username,
+            email: email,
+            password: password,
+          });
+          window.location.href = "/dashboard";
+        } catch (error) {
+          if (error.code === "firestore/permission-denied") {
+            setSignupError("There was an issue with storing your account info.");
+          } else {
+            setSignupError("There was an issue with creating your account.");
+          }
+        }
       }
     }
   };
@@ -111,6 +133,19 @@ function SignupPage() {
           <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
             <h1 className="text-3xl font-bold mb-6 mx-10">Signup to start organizing!</h1>
             <form className="w-full" onSubmit={handleSignup}>
+              {signupError != "" && (
+                <div className="flex justify-center gap-2 bg-red-200 rounded-md p-2 text-red-700 mb-4">
+                  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="rgb(185 28 28 / var(--tw-text-opacity))">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path d="M520.741 163.801a10.234 10.234 0 00-3.406-3.406c-4.827-2.946-11.129-1.421-14.075 3.406L80.258 856.874a10.236 10.236 0 00-1.499 5.335c0 5.655 4.585 10.24 10.24 10.24h846.004c1.882 0 3.728-.519 5.335-1.499 4.827-2.946 6.352-9.248 3.406-14.075L520.742 163.802zm43.703-26.674L987.446 830.2c17.678 28.964 8.528 66.774-20.436 84.452a61.445 61.445 0 01-32.008 8.996H88.998c-33.932 0-61.44-27.508-61.44-61.44a61.445 61.445 0 018.996-32.008l423.002-693.073c17.678-28.964 55.488-38.113 84.452-20.436a61.438 61.438 0 0120.436 20.436zM512 778.24c22.622 0 40.96-18.338 40.96-40.96s-18.338-40.96-40.96-40.96-40.96 18.338-40.96 40.96 18.338 40.96 40.96 40.96zm0-440.32c-22.622 0-40.96 18.338-40.96 40.96v225.28c0 22.622 18.338 40.96 40.96 40.96s40.96-18.338 40.96-40.96V378.88c0-22.622-18.338-40.96-40.96-40.96z"></path>
+                    </g>
+                  </svg>
+                  {signupError}
+                </div>
+              )}
+
               <div className="mb-6">
                 <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
                   Username

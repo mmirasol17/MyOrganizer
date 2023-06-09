@@ -7,19 +7,19 @@ export default function Header({ user }) {
   // * variables needed for this header
   const [username, setUsername] = useState("");
 
-  // * sign out the user
-  const signOut = () => {
+  // * handle sign out
+  const handleSignOut = () => {
     signOut(auth)
       .then(() => {
         // Sign-out successful.
         console.log("Sign-out successful.");
+        // go back to the login page
+        window.location.href = "/login";
       })
       .catch((error) => {
         // An error happened.
         console.log(error);
       });
-    // go back to the login page
-    window.location.href = "/login";
   };
 
   // * try to get the user's username every time the user changes
@@ -51,7 +51,7 @@ export default function Header({ user }) {
         {user ? ( // Check if the user is logged in
           <div className="flex items-center gap-6">
             <p className="text-white">{username}</p> {/* Display the user's name */}
-            <button className="text-gray-300 hover:text-white" onClick={signOut}>
+            <button className="text-gray-300 hover:text-white" onClick={handleSignOut}>
               Sign Out
             </button>
           </div>

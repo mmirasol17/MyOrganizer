@@ -3,42 +3,54 @@ import { Link } from "react-router-dom";
 import { auth, signInWithEmailAndPassword } from "../firebase/FirebaseConfig";
 
 function LoginPage() {
+  // * variables needed for this page
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [error, setError] = useState("");
 
+  // * toggle password visibility
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
+  // * handle login
   const handleSubmit = (event) => {
     event.preventDefault();
-
-    // Firebase authentication logic
-    // Replace `auth` with your Firebase authentication instance
     signInWithEmailAndPassword(auth, email, password)
       .then((userCredential) => {
-        // User successfully logged in
         const user = userCredential.user;
         console.log("User logged in:", user);
         setError(""); // Clear any previous error
+        window.location.href = "/dashboard"; // Redirect to the dashboard page
       })
       .catch((error) => {
-        // Error occurred during login
         const errorMessage = error.message;
         console.error("Login error:", errorMessage);
         setError("Invalid email or password."); // Set error message
       });
   };
 
+  // * return the login page
   return (
     <div className="flex items-center justify-center">
       <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
         <div className="absolute inset-0 bg-gray-500 bg-opacity-25 backdrop-filter backdrop-blur-md flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
             <h1 className="text-3xl font-bold mb-6">Welcome back to MyOrganizer!</h1>
-            <form className="w-full">
+            <form className="w-full" onSubmit={handleSubmit}>
+              {error != "" && (
+                <div className="flex justify-center gap-2 bg-red-200 rounded-md p-2 text-red-700 mb-4">
+                  <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="rgb(185 28 28 / var(--tw-text-opacity))">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path d="M520.741 163.801a10.234 10.234 0 00-3.406-3.406c-4.827-2.946-11.129-1.421-14.075 3.406L80.258 856.874a10.236 10.236 0 00-1.499 5.335c0 5.655 4.585 10.24 10.24 10.24h846.004c1.882 0 3.728-.519 5.335-1.499 4.827-2.946 6.352-9.248 3.406-14.075L520.742 163.802zm43.703-26.674L987.446 830.2c17.678 28.964 8.528 66.774-20.436 84.452a61.445 61.445 0 01-32.008 8.996H88.998c-33.932 0-61.44-27.508-61.44-61.44a61.445 61.445 0 018.996-32.008l423.002-693.073c17.678-28.964 55.488-38.113 84.452-20.436a61.438 61.438 0 0120.436 20.436zM512 778.24c22.622 0 40.96-18.338 40.96-40.96s-18.338-40.96-40.96-40.96-40.96 18.338-40.96 40.96 18.338 40.96 40.96 40.96zm0-440.32c-22.622 0-40.96 18.338-40.96 40.96v225.28c0 22.622 18.338 40.96 40.96 40.96s40.96-18.338 40.96-40.96V378.88c0-22.622-18.338-40.96-40.96-40.96z"></path>
+                    </g>
+                  </svg>
+                  {error}
+                </div>
+              )}
               <div className="mb-6">
                 <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
                   Email
@@ -49,7 +61,9 @@ function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
-                  className="shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
+                  className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500 ${
+                    error != "" && "border-red-500"
+                  }`}
                 />
               </div>
               <div className="mb-6 relative">
@@ -63,7 +77,9 @@ function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500"
+                    className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500 ${
+                      error != "" && "border-red-500"
+                    }`}
                   />
                   <button
                     type="button"
