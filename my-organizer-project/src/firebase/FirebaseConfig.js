@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import "firebase/firestore";
+import { getFirestore, doc, addDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -21,8 +21,10 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = app.firestore();
+const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
-// Export the auth and db objects that will be used throughout the web app
-export { auth, db, createUserWithEmailAndPassword, signInWithEmailAndPassword };
+// Export the auth objs and functions
+export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword };
+// Export the db objs and functions
+export { db, doc, addDoc, getDoc, setDoc, updateDoc };

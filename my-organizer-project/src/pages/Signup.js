@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 // for Firebase authentication and database
-import { auth, createUserWithEmailAndPassword, db } from "../firebase/FirebaseConfig";
+import { auth, createUserWithEmailAndPassword, db, setDoc, doc } from "../firebase/FirebaseConfig";
 
 function SignupPage() {
   // * variables & function for username
@@ -88,8 +88,9 @@ function SignupPage() {
 
         console.log(username, email, user.uid);
 
-        // Save the user info to the database
-        db.collection("users").doc(user.uid).set({
+        // store user info in the database with the uid as the document id
+        const userDocRef = doc(db, "users", user.uid);
+        await setDoc(userDocRef, {
           username: username,
           email: email,
         });
