@@ -34,12 +34,12 @@ function LoginPage() {
   // * return the login page
   return (
     <div className="flex items-center justify-center">
-      <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
+      <div className="relative w-screen h-[calc(100vh-72px)]" style={{ backgroundImage: "url(/images/background.png)" }}>
         <div className="absolute inset-0 bg-gray-500 bg-opacity-25 backdrop-filter backdrop-blur-md flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
             <h1 className="text-3xl font-bold mb-6">Welcome back to MyOrganizer!</h1>
             <form className="w-full" onSubmit={handleSubmit}>
-              {error != "" && (
+              {error !== "" && (
                 <div className="flex justify-center gap-2 bg-red-200 rounded-md p-2 text-red-700 mb-4">
                   <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="rgb(185 28 28 / var(--tw-text-opacity))">
                     <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
@@ -62,7 +62,7 @@ function LoginPage() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500 ${
-                    error != "" && "border-red-500"
+                    error !== "" && "border-red-500"
                   }`}
                 />
               </div>
@@ -78,7 +78,7 @@ function LoginPage() {
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500 ${
-                      error != "" && "border-red-500"
+                      error !== "" && "border-red-500"
                     }`}
                   />
                   <button

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 function NotFoundPage() {
   return (
     <div className="flex items-center justify-center">
-      <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
+      <div className="relative w-screen h-[calc(100vh-72px)]" style={{ backgroundImage: "url(/images/background.png)" }}>
         <div className="absolute inset-0 bg-gray-500 bg-opacity-25 backdrop-filter backdrop-blur-md flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center w-1/3">
             <svg

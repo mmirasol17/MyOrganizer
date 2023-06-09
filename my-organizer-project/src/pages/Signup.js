@@ -128,7 +128,7 @@ function SignupPage() {
   // * the signup form UI
   return (
     <div className="flex items-center justify-center">
-      <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
+      <div className="relative w-screen h-[calc(100vh-72px)]" style={{ backgroundImage: "url(/images/background.png)" }}>
         <div className="absolute inset-0 bg-gray-500 bg-opacity-25 backdrop-filter backdrop-blur-md flex items-center justify-center">
           <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
             <h1 className="text-3xl font-bold mb-6 mx-10">Signup to start organizing!</h1>

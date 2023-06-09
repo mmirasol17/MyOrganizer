@@ -13,8 +13,6 @@ export default function Header({ user }) {
       .then(() => {
         // Sign-out successful.
         console.log("Sign-out successful.");
-        // go back to the login page
-        window.location.href = "/login";
       })
       .catch((error) => {
         // An error happened.
@@ -41,7 +39,7 @@ export default function Header({ user }) {
   }, [user]);
 
   return (
-    <header className="bg-gray-800">
+    <header className="bg-gray-800 h-18">
       <nav className="container mx-auto flex justify-between items-center p-4">
         <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 text-white text-3xl">
           <img src="/images/favicon.ico" alt="MyOrganizer Logo" className="h-10 w-10" />
