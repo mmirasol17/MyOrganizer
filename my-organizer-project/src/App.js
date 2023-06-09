@@ -33,7 +33,7 @@ function App() {
 
   return (
     <Router>
-      <Header />
+      <Header user={user} />
       <Routes>
         <Route path="/" element={<HomePage />} />
         <Route path="/login" element={<LoginPage />} />

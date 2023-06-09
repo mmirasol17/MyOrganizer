@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
+import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { getFirestore, doc, addDoc, getDoc, setDoc, updateDoc } from "firebase/firestore";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
@@ -25,6 +25,6 @@ const db = getFirestore(app);
 const analytics = getAnalytics(app);
 
 // Export the auth objs and functions
-export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword };
+export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut };
 // Export the db objs and functions
 export { db, doc, addDoc, getDoc, setDoc, updateDoc };

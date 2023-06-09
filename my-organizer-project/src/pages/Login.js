@@ -1,11 +1,35 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { auth, signInWithEmailAndPassword } from "../firebase/FirebaseConfig";
 
 function LoginPage() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [error, setError] = useState("");
 
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    // Firebase authentication logic
+    // Replace `auth` with your Firebase authentication instance
+    signInWithEmailAndPassword(auth, email, password)
+      .then((userCredential) => {
+        // User successfully logged in
+        const user = userCredential.user;
+        console.log("User logged in:", user);
+        setError(""); // Clear any previous error
+      })
+      .catch((error) => {
+        // Error occurred during login
+        const errorMessage = error.message;
+        console.error("Login error:", errorMessage);
+        setError("Invalid email or password."); // Set error message
+      });
   };
 
   return (
@@ -22,6 +46,8 @@ function LoginPage() {
                 <input
                   type="email"
                   id="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter your email"
                   className="shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500"
                 />
@@ -34,6 +60,8 @@ function LoginPage() {
                   <input
                     type={passwordVisible ? "text" : "password"}
                     id="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
                     className="shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500"
                   />

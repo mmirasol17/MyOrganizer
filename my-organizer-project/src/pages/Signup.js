@@ -5,58 +5,72 @@ import { Link } from "react-router-dom";
 import { auth, createUserWithEmailAndPassword, db, setDoc, doc } from "../firebase/FirebaseConfig";
 
 function SignupPage() {
-  // * variables & function for username
+  // * variables needed for the password form
   const [username, setUsername] = useState("");
   const [validUsername, setValidUsername] = useState(true);
-  const validateUsername = (value) => {
-    const regex = /^[a-zA-Z0-9_-]+$/;
-    return regex.test(value);
-  };
-  const handleUsernameChange = (e) => {
-    const value = e.target.value;
-    setUsername(value);
-    setValidUsername(validateUsername(value));
-  };
-
-  // * variables & function for email
   const [email, setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(true);
-  const validateEmail = (value) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return regex.test(value);
-  };
-  const handleEmailChange = (e) => {
-    const value = e.target.value;
-    setEmail(value);
-    setValidEmail(validateEmail(value));
-  };
-
-  // * variables & functions for password
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+  const [validPassword, setValidPassword] = useState(true);
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  const [validConfirmPassword, setValidConfirmPassword] = useState(true);
+
+  // * function to toggle password visibility
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
-  const [validPassword, setValidPassword] = useState(true);
+
+  // * function to validate password
   const validatePassword = (value) => {
     return value.length >= 8 && !/\s/.test(value);
   };
+
+  // * function to handle password change
   const handlePasswordChange = (e) => {
     const value = e.target.value;
     setPassword(value);
     setValidPassword(validatePassword(value));
   };
 
-  // * variables & functions for confirm password
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+  // * function to validate username
+  const validateUsername = (value) => {
+    const regex = /^[a-zA-Z0-9_-]+$/;
+    return regex.test(value);
+  };
+
+  // * function to handle username change
+  const handleUsernameChange = (e) => {
+    const value = e.target.value;
+    setUsername(value);
+    setValidUsername(validateUsername(value));
+  };
+
+  // * function to validate email
+  const validateEmail = (value) => {
+    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return regex.test(value);
+  };
+
+  // * function to handle email change
+  const handleEmailChange = (e) => {
+    const value = e.target.value;
+    setEmail(value);
+    setValidEmail(validateEmail(value));
+  };
+
+  // * function to toggle confirm password visibility
   const toggleConfirmPasswordVisibility = () => {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
-  const [validConfirmPassword, setValidConfirmPassword] = useState(true);
+
+  // * function to validate confirm password
   const validateConfirmPassword = (value) => {
     return value.length >= 8 && value === password;
   };
+
+  // * function to handle confirm password change
   const handleConfirmPasswordChange = (e) => {
     const value = e.target.value;
     setConfirmPassword(value);
@@ -66,44 +80,30 @@ function SignupPage() {
   // * function called when user submits the signup form
   const handleSignup = async (e) => {
     e.preventDefault();
-
-    // only proceed if all fields are valid
     if (validUsername && validEmail && validPassword && validConfirmPassword) {
       let user = null;
-
-      // * create user with email and password
       try {
-        // Create user with email and password
         user = await createUserWithEmailAndPassword(auth, email, password);
-
-        // Redirect or perform other actions upon successful signup
       } catch (error) {
         console.error("We're sorry, there was an error with creating your account. Please try again later.", error);
-        // Handle error, display appropriate message to the user, etc.
       }
 
-      // * store user info in the database
       try {
         user = auth.currentUser;
-
         console.log(username, email, user.uid);
-
-        // store user info in the database with the uid as the document id
         const userDocRef = doc(db, "users", user.uid);
         await setDoc(userDocRef, {
           username: username,
           email: email,
         });
-
-        // navigate to the dashboard page
         window.location.href = "/dashboard";
       } catch (error) {
         console.error("We're sorry, there was an issue with storing your account info", error);
-        // Handle error, display appropriate message to the user, etc.
       }
     }
   };
 
+  // * the signup form UI
   return (
     <div className="flex items-center justify-center">
       <div className="relative w-screen h-screen" style={{ backgroundImage: "url(/images/background.png)" }}>
