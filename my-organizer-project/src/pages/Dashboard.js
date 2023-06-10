@@ -2,6 +2,8 @@ import React from "react";
 import { Link } from "react-router-dom";
 import ResizableWidget from "../components/ResizableWidget";
 import Calendar from "../components/Calendar";
+import BudgetComponent from "../components/Budget";
+import NotesComponent from "../components/Notes";
 
 function DashboardPage({ user }) {
   return (
@@ -20,13 +22,19 @@ function DashboardPage({ user }) {
 
           <div className="flex-grow md:w-1/2 lg:w-1/2 px-3 pb-3">
             <ResizableWidget>
-              <div className="bg-green-200 rounded-t-lg w-full text-center p-3 font-bold">Budget</div>
+              <div className="bg-green-200 rounded-t-lg w-full text-center p-3 font-bold">Budget Summary</div>
+              <div className="w-full p-2 text-center">
+                <BudgetComponent />
+              </div>
             </ResizableWidget>
           </div>
 
           <div className="flex-grow md:w-1/2 lg:w-1/2 pr-3 pb-3">
             <ResizableWidget>
               <div className="bg-yellow-200 rounded-t-lg w-full text-center p-3 font-bold">Notes</div>
+              <div className="w-full p-2 text-center">
+                <NotesComponent />
+              </div>
             </ResizableWidget>
           </div>
         </div>
