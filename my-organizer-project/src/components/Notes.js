@@ -67,6 +67,7 @@ function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
                   <span className="font-bold">{note.content}</span>
                   <div className="flex gap-2">
+                    {/* unpin note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => unpinNote(note)}>
                       <svg className="w-5 h-5" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -80,8 +81,9 @@ function NotesComponent({ user }) {
                         </g>
                       </svg>
                     </div>
+                    {/* delete note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => deleteNote(note)}>
-                      <svg className="w-5 h-5" fill="#FF0000" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg">
+                      <svg className="w-5 h-5 cf-icon-svg" fill="#FF0000" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                         <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
@@ -101,6 +103,7 @@ function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
                   <span className="font-bold">{note.content}</span>
                   <div className="flex gap-2">
+                    {/* pin note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => pinNote(note)}>
                       <svg className="w-5 h-5" fill="#000000" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -114,8 +117,9 @@ function NotesComponent({ user }) {
                         </g>
                       </svg>
                     </div>
+                    {/* delete note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => deleteNote(note)}>
-                      <svg className="w-5 h-5" fill="#FF0000" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg" class="cf-icon-svg">
+                      <svg className="w-5 h-5 cf-icon-svg" fill="#FF0000" viewBox="-3.5 0 19 19" xmlns="http://www.w3.org/2000/svg">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                         <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
