@@ -1,30 +1,15 @@
 import React, { useEffect, useRef } from "react";
 import { Chart } from "chart.js/auto";
 
-function BudgetComponent() {
-  // Sample data for earnings, expenses, and savings
+function BudgetComponent({ user }) {
+  // Sample data for expenses, earnings, and savings
   const data = {
-    labels: ["January", "February", "March", "April", "May", "June"],
+    labels: ["Expenses", "Earnings", "Savings"],
     datasets: [
       {
-        label: "Earnings",
-        data: [1200, 1000, 1300, 1100, 1400, 1200],
-        backgroundColor: "rgba(75, 192, 192, 0.5)",
-        borderColor: "rgba(75, 192, 192, 1)",
-        borderWidth: 1,
-      },
-      {
-        label: "Expenses",
-        data: [800, 900, 700, 1000, 850, 950],
-        backgroundColor: "rgba(255, 99, 132, 0.5)",
-        borderColor: "rgba(255, 99, 132, 1)",
-        borderWidth: 1,
-      },
-      {
-        label: "Savings",
-        data: [400, 100, 600, 100, 550, 250],
-        backgroundColor: "rgba(144, 238, 144, 0.5)",
-        borderColor: "rgba(144, 238, 144, 1)",
+        data: [900, 1200, 550],
+        backgroundColor: ["rgba(255, 99, 132, 0.5)", "rgba(75, 192, 192, 0.5)", "rgba(144, 238, 144, 0.5)"],
+        borderColor: ["rgba(255, 99, 132, 1)", "rgba(75, 192, 192, 1)", "rgba(144, 238, 144, 1)"],
         borderWidth: 1,
       },
     ],
@@ -54,6 +39,7 @@ function BudgetComponent() {
         data: data,
         options: {
           responsive: true,
+
           maintainAspectRatio: false,
         },
       });
@@ -67,6 +53,17 @@ function BudgetComponent() {
         options: {
           responsive: true,
           maintainAspectRatio: false,
+          scales: {
+            x: {
+              display: false,
+            },
+            y: {
+              beginAtZero: true,
+              ticks: {
+                stepSize: 200,
+              },
+            },
+          },
         },
       });
     }
@@ -86,21 +83,24 @@ function BudgetComponent() {
   }, []);
 
   return (
-    <div className="flex items-center justify-center">
-      <div className="w-full p-4">
-        <div className="flex">
-          <div className="flex-1 mr-4" style={{ height: "300px" }}>
-            <h3 className="text-lg font-bold mb-2">Earnings, Expenses, and Savings</h3>
-            <canvas ref={barChartRef} style={{ width: "100%" }} />
-          </div>
+    <>
+      <div className="bg-green-200 rounded-t-lg w-full text-center p-3 font-bold">My Budget Summary</div>
+      <div className="w-full p-2 text-center">
+        <div className="flex items-center justify-center">
+          <div className="w-full p-4">
+            <div className="flex">
+              <div className="flex-1 mr-4" style={{ height: "300px" }}>
+                <canvas ref={barChartRef} style={{ width: "100%" }} />
+              </div>
 
-          <div className="flex-1" style={{ height: "300px" }}>
-            <h3 className="text-lg font-bold mb-2">Earnings, Expenses, and Savings</h3>
-            <canvas ref={pieChartRef} style={{ width: "100%" }} />
+              <div className="flex-1" style={{ height: "300px" }}>
+                <canvas ref={pieChartRef} style={{ width: "100%" }} />
+              </div>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 

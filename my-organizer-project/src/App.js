@@ -36,7 +36,7 @@ function App() {
       ) : (
         // Render content after authentication is complete
         <Routes>
-          <Route path="/" element={<HomePage />} />
+          {user ? <Route path="/" element={<DashboardPage />} /> : <Route path="/" element={<HomePage />} />}
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<SignupPage />} />
           {user ? <Route path="/dashboard" element={<DashboardPage user={user} />} /> : <Route path="/dashboard" element={<LoginPage />} />}
