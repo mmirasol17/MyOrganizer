@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
 
 function Calendar({ user }) {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
   const [selectedDay, setSelectedDay] = useState(null);
+  const selectedDayPopupRef = useRef(null);
 
   const monthStart = startOfMonth(currentDate);
   const monthEnd = endOfMonth(monthStart);
@@ -27,23 +28,15 @@ function Calendar({ user }) {
     setCurrentDate(addDays(monthEnd, 1));
   };
 
-  const handleDayClick = (clickedDate) => {
-    // Check if the clicked date is within the current month
-    if (!isSameMonth(clickedDate, monthStart)) {
-      return;
-    }
-
-    // Update the selected day
-    setSelectedDay(clickedDate);
+  const handleDayClick = (day) => {
+    setSelectedDay(day);
   };
 
   const handlePopupClose = () => {
-    // Reset the selected day when the popup is closed
     setSelectedDay(null);
   };
 
   const getEventsForDay = (day) => {
-    // Filter the events for the selected day
     return events.filter((event) => isSameDay(event.date, day));
   };
 
@@ -51,18 +44,20 @@ function Calendar({ user }) {
     const handleOutsideClick = (event) => {
       if (!event.target.closest(".popup")) {
         setSelectedDay(null);
+        console.log("selectedDay is " + selectedDay);
       }
     };
 
-    window.addEventListener("click", handleOutsideClick);
+    if (selectedDayPopupRef.current) {
+      document.addEventListener("click", handleOutsideClick);
+    }
 
     return () => {
-      window.removeEventListener("click", handleOutsideClick);
+      document.removeEventListener("click", handleOutsideClick);
     };
-  }, []);
+  }, [selectedDayPopupRef]);
 
   const renderEventButton = (count) => {
-    // Render the button to show additional events
     return (
       <button className="text-blue-500 font-bold" onClick={() => setSelectedDay(day)}>
         {`+${count} more`}
@@ -85,7 +80,6 @@ function Calendar({ user }) {
             </button>
           </div>
 
-          {/* the days of the week (mon-sun) */}
           <div className="grid grid-cols-7">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayOfWeek) => (
               <div key={dayOfWeek} className="p-2 text-center font-bold">
@@ -94,24 +88,32 @@ function Calendar({ user }) {
             ))}
           </div>
 
-          {/* the calendar days */}
           <div className="grid grid-cols-7 border border-gray-300">
             {days.map((day) => {
               const dayEvents = getEventsForDay(day);
               const isCurrentMonth = isSameMonth(day, monthStart);
               const isCurrentDay = isSameDay(day, currentDate);
               const isSelectedDay = isSameDay(day, selectedDay);
+              const isToday = isSameDay(day, new Date());
+
+              console.log("day is " + day + "today is " + new Date() + "isToday is " + isToday);
 
               return (
                 <div
                   key={day.toString()}
-                  className={`p-2 text-center border border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${isCurrentDay ? "bg-blue-200" : ""}`}
+                  className={`p-2 text-center border border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${isSelectedDay ? "bg-blue-200" : ""}`}
                   style={{
                     height: "80px",
                   }}
-                  onClick={() => handleDayClick(day)}
+                  onClick={() => {
+                    handleDayClick(day);
+                    console.log(day + " was clicked" + " selectedDay is " + selectedDay);
+                  }}
                 >
-                  <span className={`font-bold ${isSelectedDay ? "text-blue-500" : ""}`}>{format(day, "d")}</span>
+                  <div className={`font-bold w-8 ${isToday ? "text-white bg-blue-500 rounded-full p-1" : ""} ${isSelectedDay ? "text-blue-500" : ""}`}>
+                    {format(day, "d")}
+                  </div>
+
                   {dayEvents.map((event, index) => (index < 2 ? <div key={event.name}>{event.name}</div> : index === 2 ? renderEventButton(dayEvents.length - 2) : null))}
                 </div>
               );
@@ -120,10 +122,9 @@ function Calendar({ user }) {
         </div>
       </div>
 
-      {/* the selected day popup */}
       {selectedDay && (
         <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg popup">
+          <div className="bg-white p-8 rounded-lg popup" ref={selectedDayPopupRef}>
             <div className="text-xl font-bold mb-2">
               {format(selectedDay, "eeee")}, {format(selectedDay, "MMMM d, yyyy")}
             </div>
