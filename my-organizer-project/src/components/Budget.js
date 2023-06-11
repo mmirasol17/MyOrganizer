@@ -85,7 +85,7 @@ function BudgetComponent({ user }) {
   return (
     <>
       <div className="bg-green-200 rounded-t-lg w-full text-center p-3 font-bold">My Budget Estimation Summary</div>
-      <div className="w-full p-2 text-center">
+      <div className="w-full p-2 text-center overflow-x-auto">
         <div className="flex items-center justify-center">
           <div className="w-full p-4">
             <div className="flex">

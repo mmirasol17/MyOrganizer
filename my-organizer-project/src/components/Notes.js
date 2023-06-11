@@ -11,7 +11,7 @@ function NotesComponent({ user }) {
 
   const addNote = () => {
     if (newNote.trim() !== "") {
-      const updatedNotes = [...notes, { id: Date.now(), content: newNote, pinned: false }];
+      const updatedNotes = [...notes, { id: Date.now(), content: newNote, pinned: false, createdAt: new Date() }];
       setNotes(updatedNotes);
       setNewNote("");
     }
@@ -46,7 +46,7 @@ function NotesComponent({ user }) {
   return (
     <>
       <div className="bg-yellow-200 rounded-t-lg w-full text-center p-3 font-bold">My Notes</div>
-      <div className="w-full p-2 text-center">
+      <div className="w-full p-2 text-center overflow-y-auto">
         <div className="w-full p-4">
           <div className="flex mb-4">
             <input
@@ -65,7 +65,10 @@ function NotesComponent({ user }) {
             <ul>
               {filteredPinnedNotes.map((note) => (
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
-                  <span className="font-bold">{note.content}</span>
+                  <div className="text-start">
+                    <span className="font-bold">{note.content}</span>
+                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt.toLocaleString()}</p>
+                  </div>
                   <div className="flex gap-2">
                     {/* unpin note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => unpinNote(note)}>
@@ -101,7 +104,10 @@ function NotesComponent({ user }) {
             <ul>
               {unpinnedNotes.map((note) => (
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
-                  <span className="font-bold">{note.content}</span>
+                  <div className="text-start">
+                    <span className="font-bold">{note.content}</span>
+                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt.toLocaleString()}</p>
+                  </div>
                   <div className="flex gap-2">
                     {/* pin note icon */}
                     <div className="cursor-pointer transition hover:scale-110" onClick={() => pinNote(note)}>

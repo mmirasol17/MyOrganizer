@@ -11,19 +11,19 @@ function DashboardPage({ user }) {
       {/* Updated line */}
       <div className="relative w-screen h-[calc(100vh-72px)] bg-gray-200">
         <div className="absolute inset-0 bg-opacity-25 backdrop-filter backdrop-blur-md flex flex-col md:flex-row md:flex-wrap items-stretch justify-center">
-          <div className="flex-grow md:w-screen p-3">
+          <div className="flex-grow md:w-screen p-3 lg:max-h-[calc(55vh)]">
             <ResizableWidget>
               <Calendar user={user} />
             </ResizableWidget>
           </div>
 
-          <div className="flex-grow md:w-1/2 lg:w-2/3 px-3 pb-3">
+          <div className="flex-grow md:w-1/2 lg:w-2/3 px-3 pb-3 lg:max-h-[calc(50vh)] lg:max-w-[calc(70vh)]">
             <ResizableWidget>
               <BudgetComponent user={user} />
             </ResizableWidget>
           </div>
 
-          <div className="flex-grow md:w-1/2 lg:w-1/3 pr-3 pb-3">
+          <div className="flex-grow md:w-1/2 lg:w-1/3 lg:pr-3 md:px-3 pb-3 lg:max-h-[calc(50vh)]">
             <ResizableWidget>
               <NotesComponent user={user} />
             </ResizableWidget>

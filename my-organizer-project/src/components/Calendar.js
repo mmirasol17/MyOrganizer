@@ -68,7 +68,7 @@ function Calendar({ user }) {
   return (
     <>
       <div className="bg-blue-200 rounded-t-lg w-full text-center p-3 font-bold">My Calendar</div>
-      <div className="w-full p-2 text-center">
+      <div className="w-full p-2 text-center overflow-y-auto">
         <div className="flex flex-col">
           <div className="flex justify-between">
             <button className="text-blue-500 font-bold" onClick={handlePrevMonth}>
@@ -101,7 +101,7 @@ function Calendar({ user }) {
               return (
                 <div
                   key={day.toString()}
-                  className={`p-2 text-center border border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${isSelectedDay ? "bg-blue-200" : ""}`}
+                  className={`p-1 text-center border border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${isSelectedDay ? "bg-blue-200" : ""}`}
                   style={{
                     height: "80px",
                   }}
