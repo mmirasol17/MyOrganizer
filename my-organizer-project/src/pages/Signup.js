@@ -116,7 +116,6 @@ function SignupPage({ user }) {
           await setDoc(doc(db, "users", user.user.uid), {
             username: username,
             email: email,
-            password: password,
           });
           window.location.href = "/dashboard";
         } catch (error) {

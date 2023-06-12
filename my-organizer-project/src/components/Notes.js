@@ -1,45 +1,101 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { db, collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "../firebase/FirebaseConfig";
 
 function NotesComponent({ user }) {
+  // * variables needed for this component
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
   const [pinnedNotes, setPinnedNotes] = useState([]);
 
+  // * handle note input change
   const handleNoteChange = (e) => {
     setNewNote(e.target.value);
   };
 
-  const addNote = () => {
+  // * initially fetch existing notes from Firestore
+  useEffect(() => {
+    const fetchNotes = async () => {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const notesRef = collection(userRef, "notes");
+        const snapshot = await getDocs(notesRef);
+        if (!snapshot.empty) {
+          const fetchedNotes = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+          setNotes(fetchedNotes);
+        }
+      } catch (error) {
+        console.error("Error fetching notes: ", error);
+      }
+    };
+
+    if (user) {
+      fetchNotes();
+    }
+  }, [user]);
+
+  // * add a new note
+  const addNote = async () => {
     if (newNote.trim() !== "") {
-      const updatedNotes = [...notes, { id: Date.now(), content: newNote, pinned: false, createdAt: new Date() }];
-      setNotes(updatedNotes);
-      setNewNote("");
+      const currentDate = new Date();
+      const note = {
+        content: newNote,
+        pinned: false,
+        createdAt: currentDate.toLocaleString(),
+      };
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const notesRef = collection(userRef, "notes");
+        const newNoteRef = await addDoc(notesRef, note);
+        setNotes((prevNotes) => [...prevNotes, { id: newNoteRef.id, ...note }]);
+        setNewNote("");
+      } catch (error) {
+        console.error("Error adding note: ", error);
+      }
     }
   };
 
-  const pinNote = (note) => {
+  // * pin a note
+  const pinNote = async (note) => {
     if (!note.pinned) {
-      const updatedNotes = notes.map((n) => (n === note ? { ...n, pinned: true } : n));
-      const updatedPinnedNotes = [...pinnedNotes, note];
-      setNotes(updatedNotes);
-      setPinnedNotes(updatedPinnedNotes);
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const noteRef = doc(collection(userRef, "notes"), note.id);
+        await updateDoc(noteRef, { pinned: true });
+        setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: true } : n)));
+        setPinnedNotes((prevPinnedNotes) => [...prevPinnedNotes, note]);
+      } catch (error) {
+        console.error("Error pinning note: ", error);
+      }
     }
   };
 
-  const unpinNote = (note) => {
-    const updatedNotes = notes.map((n) => (n === note ? { ...n, pinned: false } : n));
-    const updatedPinnedNotes = pinnedNotes.filter((n) => n !== note);
-    setNotes(updatedNotes);
-    setPinnedNotes(updatedPinnedNotes);
+  // * unpin a note
+  const unpinNote = async (note) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      await updateDoc(noteRef, { pinned: false });
+      setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: false } : n)));
+      setPinnedNotes((prevPinnedNotes) => prevPinnedNotes.filter((n) => n !== note));
+    } catch (error) {
+      console.error("Error unpinning note: ", error);
+    }
   };
 
-  const deleteNote = (note) => {
-    const updatedNotes = notes.filter((n) => n !== note);
-    const updatedPinnedNotes = pinnedNotes.filter((n) => n !== note);
-    setNotes(updatedNotes);
-    setPinnedNotes(updatedPinnedNotes);
+  // * delete a note
+  const deleteNote = async (note) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      await deleteDoc(noteRef);
+      setNotes((prevNotes) => prevNotes.filter((n) => n !== note));
+      setPinnedNotes((prevPinnedNotes) => prevPinnedNotes.filter((n) => n !== note));
+    } catch (error) {
+      console.error("Error deleting note: ", error);
+    }
   };
 
+  // * separate pinned and unpinned notes
   const unpinnedNotes = notes.filter((note) => !note.pinned);
   const filteredPinnedNotes = notes.filter((note) => note.pinned);
 
@@ -67,7 +123,7 @@ function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
                   <div className="text-start">
                     <span className="font-bold">{note.content}</span>
-                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt.toLocaleString()}</p>
+                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
                   </div>
                   <div className="flex gap-2">
                     {/* unpin note icon */}
@@ -106,7 +162,7 @@ function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
                   <div className="text-start">
                     <span className="font-bold">{note.content}</span>
-                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt.toLocaleString()}</p>
+                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
                   </div>
                   <div className="flex gap-2">
                     {/* pin note icon */}
