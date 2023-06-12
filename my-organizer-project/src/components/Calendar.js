@@ -68,7 +68,7 @@ function Calendar({ user }) {
   return (
     <>
       <div className="bg-blue-200 rounded-t-lg w-full text-center p-3 font-bold">My Calendar</div>
-      <div className="w-full p-2 text-center overflow-y-auto">
+      <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
         <div className="flex flex-col">
           <div className="flex justify-between">
             <button className="text-blue-500 font-bold" onClick={handlePrevMonth}>

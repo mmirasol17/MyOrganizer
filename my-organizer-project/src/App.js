@@ -29,30 +29,33 @@ function App() {
 
   return (
     <Router>
-      <Header user={user} />
-      {isLoading ? (
-        // Show loading screen while waiting for authentication
-        <div className="flex items-center justify-center h-screen">
-          <div className="relative w-screen flex items-center justify-center bg-slate-200 h-[calc(100vh-72px)]">
-            <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-gray-900"></div>
+      <div className="min-h-screen">
+        <Header user={user} />
+        {isLoading ? (
+          // Show loading screen while waiting for authentication
+          <div className="flex items-center justify-center">
+            <div className="relative w-screen flex items-center justify-center bg-slate-200 h-[calc(100vh-72px)]">
+              <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-gray-900"></div>
+            </div>
           </div>
-        </div>
-      ) : (
-        // Render content after authentication is complete
-        <Routes>
-          {/* default route -> dashboard if logged in, is -> home if not */}
-          {user ? <Route path="/" element={<DashboardPage user={user} />} /> : <Route path="/" element={<HomePage />} />}
+        ) : (
+          // Render content after authentication is complete
+          <Routes>
+            {/* default route -> dashboard if logged in, is -> home if not */}
+            {user ? <Route path="/" element={<DashboardPage user={user} />} /> : <Route path="/" element={<HomePage />} />}
 
-          {/* dashboard route shows the page if logged in, show login page if not */}
-          {user ? <Route path="/dashboard" element={<DashboardPage user={user} />} /> : <Route path="/dashboard" element={<LoginPage user={user} />} />}
+            {/* dashboard route shows the page if logged in, show login page if not */}
+            {user ? <Route path="/dashboard" element={<DashboardPage user={user} />} /> : <Route path="/dashboard" element={<LoginPage user={user} />} />}
 
-          {/* other routesthat  won't change */}
-          <Route path="/login" element={<LoginPage user={user} />} />
-          <Route path="/signup" element={<SignupPage user={user} />} />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      )}
-      <Footer />
+            {/* other routesthat  won't change */}
+            <Route path="/login" element={<LoginPage user={user} />} />
+            <Route path="/signup" element={<SignupPage user={user} />} />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        )}
+      </div>
+
+      {!user && <Footer />}
     </Router>
   );
 }

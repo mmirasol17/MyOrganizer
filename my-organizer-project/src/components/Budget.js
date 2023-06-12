@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from "react";
 import { Chart } from "chart.js/auto";
 
 function BudgetComponent({ user }) {
-  // Sample data for expenses, earnings, and savings
   const data = {
     labels: ["Expenses", "Earnings", "Savings"],
     datasets: [
@@ -15,62 +14,77 @@ function BudgetComponent({ user }) {
     ],
   };
 
-  // Create references for the chart canvases
   const pieChartRef = useRef(null);
   const barChartRef = useRef(null);
 
   useEffect(() => {
     let pieChartInstance;
     let barChartInstance;
+    let firstRender = true; // Flag to check if it's the initial render
 
-    const resizeHandler = () => {
-      if (pieChartInstance) {
-        pieChartInstance.resize();
-      }
-      if (barChartInstance) {
-        barChartInstance.resize();
-      }
-    };
-
-    // Create the pie chart
-    if (pieChartRef.current) {
-      pieChartInstance = new Chart(pieChartRef.current, {
-        type: "pie",
-        data: data,
-        options: {
-          responsive: true,
-
-          maintainAspectRatio: false,
-        },
-      });
-    }
-
-    // Create the bar chart
-    if (barChartRef.current) {
-      barChartInstance = new Chart(barChartRef.current, {
-        type: "bar",
-        data: data,
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          scales: {
-            x: {
-              display: false,
+    const createCharts = () => {
+      // Create the pie chart
+      if (pieChartRef.current) {
+        pieChartInstance = new Chart(pieChartRef.current, {
+          type: "pie",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            animation: {
+              duration: firstRender ? 1000 : 0, // Use animation for the first render, disable it otherwise
             },
-            y: {
-              beginAtZero: true,
-              ticks: {
-                stepSize: 200,
+          },
+        });
+      }
+
+      // Create the bar chart
+      if (barChartRef.current) {
+        barChartInstance = new Chart(barChartRef.current, {
+          type: "bar",
+          data: data,
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              x: {
+                display: false,
+              },
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  stepSize: 200,
+                },
+              },
+            },
+            animation: {
+              duration: firstRender ? 1000 : 0, // Use animation for the first render, disable it otherwise
+            },
+            plugins: {
+              legend: {
+                display: false, // Hide the legend
               },
             },
           },
-        },
-      });
-    }
+        });
+      }
 
+      firstRender = false; // Set the flag to false after the initial render
+    };
+
+    const resizeHandler = () => {
+      if (pieChartInstance) {
+        pieChartInstance.destroy();
+      }
+      if (barChartInstance) {
+        barChartInstance.destroy();
+      }
+      createCharts();
+    };
+
+    createCharts();
     window.addEventListener("resize", resizeHandler);
 
-    // Cleanup function to destroy chart instances and remove event listener
     return () => {
       if (pieChartInstance) {
         pieChartInstance.destroy();
@@ -88,13 +102,13 @@ function BudgetComponent({ user }) {
       <div className="w-full p-2 text-center overflow-x-auto">
         <div className="flex items-center justify-center">
           <div className="w-full p-4">
-            <div className="flex">
-              <div className="flex-1 mr-4" style={{ height: "300px" }}>
-                <canvas ref={barChartRef} style={{ width: "100%" }} />
+            <div className="flex gap-4">
+              <div className="flex-1" style={{ height: "200px" }}>
+                <canvas ref={pieChartRef} style={{ width: "100%" }} />
               </div>
 
-              <div className="flex-1" style={{ height: "300px" }}>
-                <canvas ref={pieChartRef} style={{ width: "100%" }} />
+              <div className="flex-1" style={{ height: "200px" }}>
+                <canvas ref={barChartRef} style={{ width: "100%" }} />
               </div>
             </div>
           </div>

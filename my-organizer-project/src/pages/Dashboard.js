@@ -8,25 +8,29 @@ import NotesComponent from "../components/Notes";
 function DashboardPage({ user }) {
   return (
     <div className="flex items-center justify-center">
-      {/* Updated line */}
-      <div className="relative w-screen h-[calc(100vh-72px)] bg-gray-200">
-        <div className="absolute inset-0 bg-opacity-25 backdrop-filter backdrop-blur-md flex flex-col md:flex-row md:flex-wrap items-stretch justify-center">
-          <div className="flex-grow md:w-screen p-3 lg:max-h-[calc(55vh)]">
+      <div className="relative w-screen lg:h-[calc(100vh-72px)] bg-gray-200">
+        <div className="absolute inset-0 bg-opacity-25 backdrop-filter backdrop-blur-md items-stretch justify-center">
+          {/* calendar widget */}
+          <div className="p-3 w-full lg:h-[calc(50vh)]">
             <ResizableWidget>
               <Calendar user={user} />
             </ResizableWidget>
           </div>
 
-          <div className="flex-grow md:w-1/2 lg:w-2/3 px-3 pb-3 lg:max-h-[calc(50vh)] lg:max-w-[calc(70vh)]">
-            <ResizableWidget>
-              <BudgetComponent user={user} />
-            </ResizableWidget>
-          </div>
+          <div className="md:flex-row md:flex-wrap lg:flex lg:flex-nowrap lg:w-full px-3 pb-3 gap-3 lg:h-[calc(50vh-72px)]">
+            {/* budget widget */}
+            <div className="pb-3 lg:pb-0 lg:w-2/3">
+              <ResizableWidget>
+                <BudgetComponent user={user} />
+              </ResizableWidget>
+            </div>
 
-          <div className="flex-grow md:w-1/2 lg:w-1/3 lg:pr-3 md:px-3 pb-3 lg:max-h-[calc(50vh)]">
-            <ResizableWidget>
-              <NotesComponent user={user} />
-            </ResizableWidget>
+            {/* notes widget */}
+            <div className="lg:w-1/3">
+              <ResizableWidget>
+                <NotesComponent user={user} />
+              </ResizableWidget>
+            </div>
           </div>
         </div>
       </div>
