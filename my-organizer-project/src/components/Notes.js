@@ -120,7 +120,7 @@ function NotesComponent({ user }) {
           {filteredPinnedNotes.length > 0 && (
             <ul>
               {filteredPinnedNotes.map((note) => (
-                <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
+                <li key={note.id} className="flex rounded-md bg-yellow-200 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
                   <div className="text-start">
                     <span className="font-bold">{note.content}</span>
                     <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
