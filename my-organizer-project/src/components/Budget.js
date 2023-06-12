@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Chart } from "chart.js/auto";
 
-function BudgetComponent({ user }) {
+export default function BudgetComponent({ user }) {
   const data = {
     labels: ["Expenses", "Earnings", "Savings"],
     datasets: [
@@ -117,5 +117,3 @@ function BudgetComponent({ user }) {
     </>
   );
 }
-
-export default BudgetComponent;

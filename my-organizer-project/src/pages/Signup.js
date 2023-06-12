@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 
 // for Firebase authentication and database
 import { auth, createUserWithEmailAndPassword, db, setDoc, doc } from "../firebase/FirebaseConfig";
+import Footer from "../components/Footer";
 
-function SignupPage({ user }) {
+export default function SignupPage({ user }) {
   // * variables needed for the password form
   const [username, setUsername] = useState("");
   const [validUsername, setValidUsername] = useState(true);
@@ -301,8 +302,8 @@ function SignupPage({ user }) {
           </div>
         </div>
       )}
+
+      <Footer />
     </>
   );
 }
-
-export default SignupPage;

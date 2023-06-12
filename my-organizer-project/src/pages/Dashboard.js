@@ -5,19 +5,19 @@ import Calendar from "../components/Calendar";
 import BudgetComponent from "../components/Budget";
 import NotesComponent from "../components/Notes";
 
-function DashboardPage({ user }) {
+export default function DashboardPage({ user }) {
   return (
     <div className="flex items-center justify-center">
       <div className="relative w-screen lg:h-[calc(100vh-72px)] bg-gray-200">
         <div className="absolute inset-0 bg-opacity-25 backdrop-filter backdrop-blur-md items-stretch justify-center">
           {/* calendar widget */}
-          <div className="p-3 w-full lg:h-[calc(50vh)]">
+          <div className="p-3 w-full lg:h-[calc(55vh)]">
             <ResizableWidget id="calendar">
               <Calendar user={user} />
             </ResizableWidget>
           </div>
 
-          <div className="md:flex-row md:flex-wrap lg:flex lg:flex-nowrap lg:w-full px-3 pb-3 gap-3 lg:h-[calc(50vh-72px)]">
+          <div className="md:flex-row md:flex-wrap lg:flex lg:flex-nowrap lg:w-full px-3 pb-3 gap-3 lg:h-[calc(45vh-72px)]">
             {/* budget widget */}
             <div className="pb-3 lg:pb-0 lg:w-2/3">
               <ResizableWidget id="budget">
@@ -37,5 +37,3 @@ function DashboardPage({ user }) {
     </div>
   );
 }
-
-export default DashboardPage;

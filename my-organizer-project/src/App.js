@@ -54,8 +54,6 @@ function App() {
           </Routes>
         )}
       </div>
-
-      {!user && <Footer />}
     </Router>
   );
 }

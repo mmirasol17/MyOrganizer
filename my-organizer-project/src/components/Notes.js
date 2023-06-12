@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { db, collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "../firebase/FirebaseConfig";
 
-function NotesComponent({ user }) {
+export default function NotesComponent({ user }) {
   // * variables needed for this component
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
-  const [pinnedNotes, setPinnedNotes] = useState([]);
 
   // * handle note input change
   const handleNoteChange = (e) => {
@@ -27,7 +26,6 @@ function NotesComponent({ user }) {
         console.error("Error fetching notes: ", error);
       }
     };
-
     if (user) {
       fetchNotes();
     }
@@ -62,7 +60,6 @@ function NotesComponent({ user }) {
         const noteRef = doc(collection(userRef, "notes"), note.id);
         await updateDoc(noteRef, { pinned: true });
         setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: true } : n)));
-        setPinnedNotes((prevPinnedNotes) => [...prevPinnedNotes, note]);
       } catch (error) {
         console.error("Error pinning note: ", error);
       }
@@ -76,7 +73,6 @@ function NotesComponent({ user }) {
       const noteRef = doc(collection(userRef, "notes"), note.id);
       await updateDoc(noteRef, { pinned: false });
       setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: false } : n)));
-      setPinnedNotes((prevPinnedNotes) => prevPinnedNotes.filter((n) => n !== note));
     } catch (error) {
       console.error("Error unpinning note: ", error);
     }
@@ -89,7 +85,6 @@ function NotesComponent({ user }) {
       const noteRef = doc(collection(userRef, "notes"), note.id);
       await deleteDoc(noteRef);
       setNotes((prevNotes) => prevNotes.filter((n) => n !== note));
-      setPinnedNotes((prevPinnedNotes) => prevPinnedNotes.filter((n) => n !== note));
     } catch (error) {
       console.error("Error deleting note: ", error);
     }
@@ -101,29 +96,32 @@ function NotesComponent({ user }) {
 
   return (
     <>
+      {/* widget header */}
       <div className="bg-yellow-200 rounded-t-lg w-full text-center p-3 font-bold">My Notes</div>
       <div className="w-full p-2 text-center overflow-y-auto">
+        {/* new note input field with add button */}
         <div className="w-full p-4">
-          <div className="flex mb-4">
+          <div className="flex mb-4 gap-1.5">
             <input
               type="text"
               value={newNote}
               onChange={handleNoteChange}
               placeholder="Write a note..."
-              className="flex-grow px-4 py-2 mr-2 border border-gray-300 rounded focus:outline-none"
+              className="flex-grow px-4 py-1.5 border border-gray-300 rounded focus:outline-none"
             />
-            <button onClick={addNote} className="px-4 py-2 bg-gray-800 text-white font-bold rounded hover:bg-gray-600 focus:outline-none">
+            <button onClick={addNote} className="px-4 py-1.5 bg-gray-800 text-white text-sm font-bold rounded hover:bg-gray-600 focus:outline-none">
               Add
             </button>
           </div>
 
+          {/* show pinned notes at the top */}
           {filteredPinnedNotes.length > 0 && (
             <ul>
               {filteredPinnedNotes.map((note) => (
-                <li key={note.id} className="flex rounded-md bg-yellow-200 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
+                <li key={note.id} className="flex rounded-md bg-yellow-200 shadow-md items-center justify-between mb-1.5 py-1 px-2 hover:bg-slate-200">
                   <div className="text-start">
-                    <span className="font-bold">{note.content}</span>
-                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
+                    <span className="font-bold text-sm">{note.content}</span>
+                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt}</p>
                   </div>
                   <div className="flex gap-2">
                     {/* unpin note icon */}
@@ -156,12 +154,13 @@ function NotesComponent({ user }) {
             </ul>
           )}
 
+          {/* show unpinned notes below the pinned notes */}
           {unpinnedNotes.length > 0 && (
             <ul>
               {unpinnedNotes.map((note) => (
-                <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 p-2 hover:bg-slate-200">
+                <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 py-1 px-2 hover:bg-slate-200">
                   <div className="text-start">
-                    <span className="font-bold">{note.content}</span>
+                    <span className="font-bold text-sm">{note.content}</span>
                     <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
                   </div>
                   <div className="flex gap-2">
@@ -199,5 +198,3 @@ function NotesComponent({ user }) {
     </>
   );
 }
-
-export default NotesComponent;

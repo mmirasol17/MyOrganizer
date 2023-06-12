@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { v4 as uuid } from "uuid";
 
-const Dropdown = ({ options, selectedOption, setSelectedOption }) => {
+export default function Dropdown({ options, selectedOption, setSelectedOption }) {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownId = `dropdown-menu-${uuid()}`;
 
@@ -84,6 +84,4 @@ const Dropdown = ({ options, selectedOption, setSelectedOption }) => {
       )}
     </div>
   );
-};
-
-export default Dropdown;
+}
