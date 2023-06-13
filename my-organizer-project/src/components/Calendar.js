@@ -113,9 +113,13 @@ export default function Calendar({ user }) {
 
   // * For when the user clicks on a day event
   const handleDayEventClick = (event) => {
-    setSelectedDay(event.date);
+    setNewEvent(event);
+  };
+  const handleNewEventPopupClose = () => {
+    setNewEvent(null);
   };
 
+  // * For getting the events for a day
   const getEventsForDay = (day) => {
     return events.filter((event) => isSameDay(event.date, day));
   };
@@ -408,6 +412,20 @@ export default function Calendar({ user }) {
             <div className="text-sm mb-2">{selectedEvent.time}</div>
             <div className="text-sm mb-2">{selectedEvent.type}</div>
             <button className="text-blue-500 font-bold mt-4" onClick={handleEventPopupClose}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {newEvent && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg popup" ref={newEventPopupRef}>
+            <div className="text-xl font-bold mb-2">New Event</div>
+            {/* <div className="text-sm mb-2">{format(newEvent.date, "eeee, MMMM d, yyyy")}</div>
+            <div className="text-sm mb-2">{newEvent.time}</div>
+            <div className="text-sm mb-2">{newEvent.type}</div> */}
+            <button className="text-blue-500 font-bold mt-4" onClick={handleNewEventPopupClose}>
               Close
             </button>
           </div>

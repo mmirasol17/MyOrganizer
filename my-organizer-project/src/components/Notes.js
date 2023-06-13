@@ -12,7 +12,7 @@ export default function NotesComponent({ user }) {
     setNewNote(e.target.value);
   };
 
-  // * handle edit note input change
+  // * handle edit note change
   const handleEditNoteChange = (e) => {
     setEditNote({
       ...editNote,
@@ -80,28 +80,6 @@ export default function NotesComponent({ user }) {
     }
   };
 
-  // * update an edited note
-  const updateNote = async (note) => {
-    if (note.content.trim() === "") {
-      deleteNote(note);
-      setEditNote(null);
-      return;
-    }
-    if (note.content === editNote.content) {
-      setEditNote(null);
-      return;
-    }
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const noteRef = doc(collection(userRef, "notes"), note.id);
-      await updateDoc(noteRef, { content: editNote.content });
-      setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, content: editNote.content } : n)));
-      setEditNote(null);
-    } catch (error) {
-      console.error("Error updating note: ", error);
-    }
-  };
-
   // * unpin a note
   const unpinNote = async (note) => {
     try {
@@ -111,6 +89,27 @@ export default function NotesComponent({ user }) {
       setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: false } : n)));
     } catch (error) {
       console.error("Error unpinning note: ", error);
+    }
+  };
+
+  // * update an edited note
+  const updateNote = async (note) => {
+    try {
+      if (note.content.trim() === "") {
+        deleteNote(note);
+        setEditNote(null);
+        return;
+      }
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      await updateDoc(noteRef, { content: note.content, updatedAt: new Date().toLocaleString() });
+      // get rid of the edited note from the notes array
+      setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+      // add the edited note to the notes array with when it was updated
+      setNotes((prevNotes) => [...prevNotes, { ...note, updatedAt: new Date().toLocaleString() }]);
+      setEditNote(null);
+    } catch (error) {
+      console.error("Error updating note: ", error);
     }
   };
 
@@ -175,7 +174,9 @@ export default function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-200 shadow-md items-center justify-between mb-1.5 py-1 px-2 hover:bg-slate-200">
                   <div className="text-start">
                     <span className="font-bold text-sm">{note.content}</span>
-                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt}</p>
+                    <p className="text-gray-500 text-xs italic">
+                      {!note.updatedAt ? "Created" : "Updated"} at {note.createdAt}
+                    </p>
                   </div>
                   <div className="flex gap-2 items-center">
                     {/* unpin note icon */}
@@ -193,10 +194,10 @@ export default function NotesComponent({ user }) {
                       </svg>
                     </div>
                     {/* edit note icon */}
-                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote({ ...note })}>
+                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote(note)}>
                       <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
                           <style type="text/css"> </style>
                           <g>
@@ -232,7 +233,9 @@ export default function NotesComponent({ user }) {
                 <li key={note.id} className="flex rounded-md bg-yellow-100 shadow-md items-center justify-between mb-1.5 py-1 px-2 hover:bg-slate-200">
                   <div className="text-start">
                     <span className="font-bold text-sm">{note.content}</span>
-                    <p className="text-gray-500 text-xs italic">Created at {note.createdAt && note.createdAt}</p>
+                    <p className="text-gray-500 text-xs italic">
+                      {!note.updatedAt ? "Created" : "Updated"} at {note.createdAt}
+                    </p>
                   </div>
                   <div className="flex gap-2 items-center">
                     {/* pin note icon */}
@@ -250,10 +253,10 @@ export default function NotesComponent({ user }) {
                       </svg>
                     </div>
                     {/* edit note icon */}
-                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote({ ...note })}>
+                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote(note)}>
                       <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
-                        <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                        <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                        <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                        <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                         <g id="SVGRepo_iconCarrier">
                           <style type="text/css"> </style>
                           <g>
@@ -288,8 +291,8 @@ export default function NotesComponent({ user }) {
       {notes.length === 0 && (
         <div className="p-10 flex flex-col mb-8 gap-1 text-center w-1/2 rounded-lg justify-center items-center bg-gray-200">
           <svg className="h-10 w-10 text-gray-500" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-            <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
               <path
                 d="M8.28906 6.29C7.86906 6.29 7.53906 5.95 7.53906 5.54V2.75C7.53906 2.34 7.86906 2 8.28906 2C8.70906 2 9.03906 2.34 9.03906 2.75V5.53C9.03906 5.95 8.70906 6.29 8.28906 6.29Z"
@@ -309,16 +312,16 @@ export default function NotesComponent({ user }) {
         </div>
       )}
 
-      {/* edit note modal */}
+      {/* edit note popup */}
       {editNote && (
-        <div className="fixed z-10 inset-0 overflow-y-auto">
+        <div className="edit-note-popup fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             {/* overlay */}
             <div className="fixed inset-0 transition-opacity" aria-hidden="true">
               <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
             </div>
 
-            {/* modal content */}
+            {/* popup content */}
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
               &#8203;
             </span>
@@ -328,7 +331,7 @@ export default function NotesComponent({ user }) {
               aria-modal="true"
               aria-labelledby="modal-headline"
             >
-              {/* modal header */}
+              {/* popup header */}
               <div className="bg-yellow-200 h-12 flex items-center justify-center gap-1 rounded-t-lg w-full text-center font-bold p-3">
                 <div>Edit Note</div>
                 <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -349,7 +352,7 @@ export default function NotesComponent({ user }) {
                 </svg>
               </div>
 
-              {/* modal body */}
+              {/* popup body */}
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="w-full">
                   <div className="mb-4">
@@ -358,8 +361,8 @@ export default function NotesComponent({ user }) {
                     </label>
                     <textarea
                       type="text"
-                      value={editNote.content}
                       onChange={handleEditNoteChange}
+                      value={editNote.content}
                       placeholder="Write a note..."
                       className="flex-grow px-4 py-1.5 border border-gray-300 rounded focus:outline-none"
                     />
@@ -377,7 +380,7 @@ export default function NotesComponent({ user }) {
                   Update
                 </button>
                 <button
-                  onClick={() => handleEditNotePopupClose()}
+                  onClick={handleEditNotePopupClose}
                   type="button"
                   className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
                 >
