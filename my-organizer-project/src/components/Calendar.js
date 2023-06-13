@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameWeek, isSameDay } from "date-fns";
 import Dropdown from "./Dropdown";
 
+// * view mode options for the calendar
 const viewModeOptions = [
   {
     label: "Month",
@@ -23,8 +24,17 @@ export default function Calendar({ user }) {
   // * calendar date management
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
+
+  // * popup management for selected day
   const [selectedDay, setSelectedDay] = useState(null);
   const selectedDayPopupRef = useRef(null);
+
+  // * popup management for selected event
+  const [selectedEvent, setSelectedEvent] = useState(null);
+  const selectedEventPopupRef = useRef(null);
+
+  // * popup management for new event
+  const [newEvent, setNewEvent] = useState(null);
   const newEventPopupRef = useRef(null);
 
   // * month calendar date management
@@ -42,7 +52,7 @@ export default function Calendar({ user }) {
   const days = [];
   let day = monthStartDate;
 
-  // * Fetch holidays
+  // * Fetch holidays via the date.nager.at API
   useEffect(() => {
     const fetchHolidays = async () => {
       try {
@@ -55,8 +65,8 @@ export default function Calendar({ user }) {
             date: new Date(holiday.date),
             type: "holiday",
             time: "all-day",
+            color: "red",
           }));
-          // get rid of duplicate holidays
           const uniqueHolidays = formattedHolidays.filter((holiday, index, self) => index === self.findIndex((t) => t.name === holiday.name));
           setEvents(uniqueHolidays);
         } else {
@@ -66,37 +76,44 @@ export default function Calendar({ user }) {
         console.error("Error fetching holidays:", error);
       }
     };
-
     fetchHolidays();
   }, [currentDate]);
 
-  while (day <= monthEndDate) {
-    days.push(day);
-    day = addDays(day, 1);
-  }
-
+  // * For changing months on the month calendar
   const handlePrevMonth = () => {
     setCurrentDate(addDays(monthStart, -1));
   };
-
   const handleNextMonth = () => {
     setCurrentDate(addDays(monthEnd, 1));
   };
 
+  // * For changing weeks on the week calendar
   const handlePrevWeek = () => {
     setCurrentDate(addDays(weekStart, -7));
   };
-
   const handleNextWeek = () => {
     setCurrentDate(addDays(weekEnd, 7));
   };
 
+  // * For when the user clicks on a day date number
   const handleDayClick = (day) => {
     setSelectedDay(day);
   };
-
-  const handlePopupClose = () => {
+  const handleDayPopupClose = () => {
     setSelectedDay(null);
+  };
+
+  // * For when the user clicks on an event
+  const handleEventClick = (event) => {
+    setSelectedEvent(event);
+  };
+  const handleEventPopupClose = () => {
+    setSelectedEvent(null);
+  };
+
+  // * For when the user clicks on a day event
+  const handleDayEventClick = (event) => {
+    setSelectedDay(event.date);
   };
 
   const getEventsForDay = (day) => {
@@ -129,14 +146,18 @@ export default function Calendar({ user }) {
   };
 
   const showMonthView = () => {
+    while (day <= monthEndDate) {
+      days.push(day);
+      day = addDays(day, 1);
+    }
     return (
       <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
         <div className="flex flex-col">
-          <div className="flex items-center justify-center">
+          <div className="flex items-center pb-1 justify-center">
             <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handlePrevMonth}>
               <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
                   <path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z"></path>
                 </g>
@@ -145,8 +166,8 @@ export default function Calendar({ user }) {
             <h2 className="text-2xl font-bold w-60">{format(monthStart, "MMMM yyyy")}</h2>
             <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handleNextMonth}>
               <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
                   <path d="M419.3 264.8l-61.8 61.8L542.9 512 357.5 697.4l61.8 61.8L666.5 512z"></path>
                 </g>
@@ -156,13 +177,13 @@ export default function Calendar({ user }) {
 
           <div className="grid grid-cols-7">
             {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayOfWeek) => (
-              <div key={dayOfWeek} className="p-2 text-center font-bold">
+              <div key={dayOfWeek} className="p-1 text-center font-bold">
                 {dayOfWeek}
               </div>
             ))}
           </div>
 
-          <div className="grid grid-cols-7 border border-gray-300">
+          <div className="grid grid-cols-7 border-[0.5px] border-gray-300">
             {days.map((day) => {
               const dayEvents = getEventsForDay(day);
               const isCurrentMonth = isSameMonth(day, monthStart);
@@ -172,23 +193,42 @@ export default function Calendar({ user }) {
               return (
                 <div
                   key={day.toString()}
-                  className={`p-1 text-center border border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${isSelectedDay ? "bg-blue-200" : ""}`}
+                  className={`p-0.5 cursor-pointer text-center border-[0.5px] border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${
+                    isSelectedDay ? "bg-blue-200" : ""
+                  }`}
                   style={{
                     height: "90px",
                   }}
                   onClick={() => {
-                    handleDayClick(day);
-                    console.log(day + " was clicked" + " selectedDay is " + selectedDay);
+                    handleDayEventClick(day);
                   }}
                 >
-                  <div className={`font-bold w-8 ${isToday ? "text-white bg-blue-500 rounded-full p-1" : ""} ${isSelectedDay ? "text-blue-500" : ""}`}>
-                    {format(day, "d")}
+                  <div className="w-full cursor-pointer flex items-center justify-center">
+                    <div
+                      className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 ${
+                        isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"
+                      } ${isSelectedDay ? "text-blue-500" : ""}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDayClick(day);
+                      }}
+                    >
+                      {format(day, "d")}
+                    </div>
                   </div>
 
                   {dayEvents.map((event, index) =>
                     index < 2 ? (
-                      <div className={`rounded-md text-xs mb-0.5 ${event.type === "holiday" && "bg-red-200"}`} key={event.name}>
-                        {event.name}
+                      <div
+                        className={`transition hover:scale-105 rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200 hover:bg-${event.color}-400`}
+                        key={event.name}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEventClick(event);
+                        }}
+                      >
+                        <div>{event.time} |&nbsp;</div>
+                        <div className="font-bold">{event.name}</div>
                       </div>
                     ) : index === 2 ? (
                       renderEventButton(dayEvents.length - 2)
@@ -218,8 +258,8 @@ export default function Calendar({ user }) {
           <div className="flex items-center justify-center">
             <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handlePrevWeek}>
               <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
                   <path d="M604.7 759.2l61.8-61.8L481.1 512l185.4-185.4-61.8-61.8L357.5 512z"></path>
                 </g>
@@ -228,8 +268,8 @@ export default function Calendar({ user }) {
             <h2 className="text-2xl font-bold w-80">{`${format(weekStartDate, "MMMM d")} - ${format(weekEndDate, "MMMM d, yyyy")}`}</h2>
             <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handleNextWeek}>
               <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                 <g id="SVGRepo_iconCarrier">
                   <path d="M419.3 264.8l-61.8 61.8L542.9 512 357.5 697.4l61.8 61.8L666.5 512z"></path>
                 </g>
@@ -323,8 +363,17 @@ export default function Calendar({ user }) {
             Today
           </button>
         </div>
-        {/* Empty column */}
-        <div className="col-span-1 justify-self-center">My Calendar</div> {/* Calendar title in the middle */}
+        <div className="col-span-1 justify-center flex items-center gap-1">
+          <div>My Calendar</div>
+          <svg className="h-6 w-6" fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+            <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+            <g id="SVGRepo_iconCarrier">
+              <path d="M12,14a1,1,0,1,0-1-1A1,1,0,0,0,12,14Zm5,0a1,1,0,1,0-1-1A1,1,0,0,0,17,14Zm-5,4a1,1,0,1,0-1-1A1,1,0,0,0,12,18Zm5,0a1,1,0,1,0-1-1A1,1,0,0,0,17,18ZM7,14a1,1,0,1,0-1-1A1,1,0,0,0,7,14ZM19,4H18V3a1,1,0,0,0-2,0V4H8V3A1,1,0,0,0,6,3V4H5A3,3,0,0,0,2,7V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3-3V7A3,3,0,0,0,19,4Zm1,15a1,1,0,0,1-1,1H5a1,1,0,0,1-1-1V10H20ZM20,8H4V7A1,1,0,0,1,5,6H19a1,1,0,0,1,1,1ZM7,18a1,1,0,1,0-1-1A1,1,0,0,0,7,18Z"></path>
+            </g>
+          </svg>
+        </div>
+        {/* Calendar title in the middle */}
         <div className="col-span-1 justify-self-end my-1.5">
           <Dropdown options={viewModeOptions} selectedOption={viewModeOptions.find((option) => option.value === viewMode)} setSelectedOption={handleViewModeChange} />
         </div>
@@ -344,7 +393,21 @@ export default function Calendar({ user }) {
             ) : (
               <div>No events for this day</div>
             )}
-            <button className="text-blue-500 font-bold mt-4" onClick={handlePopupClose}>
+            <button className="text-blue-500 font-bold mt-4" onClick={handleDayPopupClose}>
+              Close
+            </button>
+          </div>
+        </div>
+      )}
+
+      {selectedEvent && (
+        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="bg-white p-8 rounded-lg popup" ref={selectedEventPopupRef}>
+            <div className="text-xl font-bold mb-2">{selectedEvent.name}</div>
+            <div className="text-sm mb-2">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</div>
+            <div className="text-sm mb-2">{selectedEvent.time}</div>
+            <div className="text-sm mb-2">{selectedEvent.type}</div>
+            <button className="text-blue-500 font-bold mt-4" onClick={handleEventPopupClose}>
               Close
             </button>
           </div>
