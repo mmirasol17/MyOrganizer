@@ -1,11 +1,15 @@
+// React components required
 import React, { useEffect, useState } from "react";
-import { auth } from "./firebase/FirebaseConfig";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+
+// Firebase components required
+import { auth } from "./firebase/FirebaseConfig";
+
+// Pages required
 import LoginPage from "./pages/Login";
 import HomePage from "./pages/Home";
 import SignupPage from "./pages/Signup";
-import Header from "./components/Header";
-import Footer from "./components/Footer";
+import Header from "./components/ui/Header";
 import NotFoundPage from "./pages/NotFound";
 import DashboardPage from "./pages/Dashboard";
 

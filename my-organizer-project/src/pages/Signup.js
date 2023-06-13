@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 
 // for Firebase authentication and database
 import { auth, createUserWithEmailAndPassword, db, setDoc, doc } from "../firebase/FirebaseConfig";
-import Footer from "../components/Footer";
+import Footer from "../components/ui/Footer";
 
 export default function SignupPage({ user }) {
   // * variables needed for the password form
@@ -140,7 +140,7 @@ export default function SignupPage({ user }) {
               <div className="bg-white rounded-lg shadow-lg p-8 flex flex-col items-center">
                 <h1 className="text-3xl font-bold mb-6 mx-10">Signup to start organizing!</h1>
                 <form className="w-full" onSubmit={handleSignup}>
-                  {signupError != "" && (
+                  {signupError !== "" && (
                     <div className="flex justify-center gap-2 bg-red-200 rounded-md p-2 text-red-700 mb-4">
                       <svg viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="rgb(185 28 28 / var(--tw-text-opacity))">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>

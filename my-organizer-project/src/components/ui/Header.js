@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
-import { auth, db, doc, getDoc, signOut } from "../firebase/FirebaseConfig";
+import { auth, db, doc, getDoc, signOut } from "../../firebase/FirebaseConfig";
 
 export default function Header({ user }) {
   // * variables needed for this header

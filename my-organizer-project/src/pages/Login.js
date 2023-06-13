@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { auth, signInWithEmailAndPassword } from "../firebase/FirebaseConfig";
-import Footer from "../components/Footer";
+import Footer from "../components/ui/Footer";
 
 export default function LoginPage({ user }) {
   // * variables needed for this page

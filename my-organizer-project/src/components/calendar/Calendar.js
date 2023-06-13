@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameWeek, isSameDay } from "date-fns";
-import Dropdown from "./Dropdown";
+import Dropdown from "../ui/Dropdown";
 
 // * view mode options for the calendar
 const viewModeOptions = [
@@ -36,6 +36,7 @@ export default function Calendar({ user }) {
   // * popup management for new event
   const [newEvent, setNewEvent] = useState(null);
   const newEventPopupRef = useRef(null);
+  const [editEvent, setEditEvent] = useState(null);
 
   // * month calendar date management
   const monthStart = startOfMonth(currentDate);
@@ -139,7 +140,7 @@ export default function Calendar({ user }) {
     return () => {
       document.removeEventListener("click", handleOutsideClick);
     };
-  }, [selectedDayPopupRef]);
+  }, [selectedDayPopupRef, selectedDay]);
 
   const renderEventButton = (count) => {
     return (
@@ -405,15 +406,70 @@ export default function Calendar({ user }) {
       )}
 
       {selectedEvent && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg popup" ref={selectedEventPopupRef}>
-            <div className="text-xl font-bold mb-2">{selectedEvent.name}</div>
-            <div className="text-sm mb-2">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</div>
-            <div className="text-sm mb-2">{selectedEvent.time}</div>
-            <div className="text-sm mb-2">{selectedEvent.type}</div>
-            <button className="text-blue-500 font-bold mt-4" onClick={handleEventPopupClose}>
-              Close
-            </button>
+        <div className="edit-note-popup fixed z-10 inset-0 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            {/* overlay */}
+            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+
+            {/* popup content */}
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
+              &#8203;
+            </span>
+            <div
+              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="modal-headline"
+            >
+              {/* popup header */}
+              <div className={`bg-${selectedEvent.color}-200 px-4 pt-5 pb-4 sm:p-6 sm:pb-4`}>
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900" id="modal-headline">
+                      {selectedEvent.name}
+                    </h3>
+                  </div>
+                </div>
+              </div>
+
+              {/* popup body */}
+              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="mb-4">
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Date:</label>
+                  <p className="text-gray-700 text-base">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</p>
+
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Time:</label>
+                  <p className="text-gray-700 text-base">{selectedEvent.time}</p>
+
+                  <label className="block text-gray-700 text-sm font-bold mb-2">Type:</label>
+                  <p className="text-gray-700 text-base">{selectedEvent.type}</p>
+                </div>
+              </div>
+
+              {/* popup footer */}
+              <div className={`bg-${selectedEvent.color}-200 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse`}>
+                <button
+                  type="button"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white hover:bg-${selectedEvent.color}-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${selectedEvent.color}-500 sm:ml-3 sm:w-auto sm:text-sm`}
+                  onClick={handleEventPopupClose}
+                >
+                  Close
+                </button>
+
+                <button
+                  type="button"
+                  className={`w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 text-base font-medium text-white bg-${selectedEvent.color}-500 hover:bg-${selectedEvent.color}-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-${selectedEvent.color}-500 sm:ml-3 sm:w-auto sm:text-sm`}
+                  onClick={() => {
+                    setEditEvent(selectedEvent);
+                    handleEventPopupClose();
+                  }}
+                >
+                  Edit
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
