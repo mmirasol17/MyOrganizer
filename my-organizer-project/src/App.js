@@ -46,15 +46,23 @@ function App() {
           // Render content after authentication is complete
           <Routes>
             {/* default route -> dashboard if logged in, is -> home if not */}
-            {user ? <Route path="/" element={<DashboardPage user={user} />} /> : <Route path="/" element={<HomePage />} />}
+            {user ? (
+              <Route id="default-authenticated" path="/" element={<DashboardPage user={user} />} />
+            ) : (
+              <Route id="default-unauthenticated" path="/" element={<HomePage />} />
+            )}
 
             {/* dashboard route shows the page if logged in, show login page if not */}
-            {user ? <Route path="/dashboard" element={<DashboardPage user={user} />} /> : <Route path="/dashboard" element={<LoginPage user={user} />} />}
+            {user ? (
+              <Route id="dashboard-authenticated" path="/dashboard" element={<DashboardPage user={user} />} />
+            ) : (
+              <Route id="dashboard-unauthenticated" path="/dashboard" element={<LoginPage user={user} />} />
+            )}
 
             {/* other routesthat  won't change */}
-            <Route path="/login" element={<LoginPage user={user} />} />
-            <Route path="/signup" element={<SignupPage user={user} />} />
-            <Route path="*" element={<NotFoundPage />} />
+            <Route id="login" path="/login" element={<LoginPage user={user} />} />
+            <Route id="signup" path="/signup" element={<SignupPage user={user} />} />
+            <Route id="not-found" path="*" element={<NotFoundPage />} />
           </Routes>
         )}
       </div>

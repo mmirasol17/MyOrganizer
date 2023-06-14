@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameWeek, isSameDay } from "date-fns";
+import Widget from "../ui/Widget";
 import Dropdown from "../ui/Dropdown";
 
 // * view mode options for the calendar
@@ -14,7 +15,7 @@ const viewModeOptions = [
   },
 ];
 
-export default function Calendar({ user }) {
+export default function CalendarWidget({ user }) {
   // * calendar view mode management
   const [viewMode, setViewMode] = useState("month");
   const handleViewModeChange = (modeOption) => {
@@ -357,7 +358,7 @@ export default function Calendar({ user }) {
   };
 
   return (
-    <>
+    <Widget id="calendar">
       <div className="bg-blue-200 grid grid-cols-3 rounded-t-lg w-full h-12 font-bold items-center px-2 sticky">
         <div className="col-span-1 justify-self-start">
           {/* button to go to the week or month of today */}
@@ -487,6 +488,6 @@ export default function Calendar({ user }) {
           </div>
         </div>
       )}
-    </>
+    </Widget>
   );
 }

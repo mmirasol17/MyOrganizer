@@ -1,28 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { db, collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
+import Widget from "../ui/Widget";
 
-export default function NotesComponent({ user }) {
+import NoteEditPopup from "./NoteEditPopup";
+
+export default function NotesWidget({ user }) {
   // * variables needed for this component
   const [notes, setNotes] = useState([]);
   const [newNote, setNewNote] = useState("");
-  const [editNote, setEditNote] = useState(null);
+  const [noteEdit, setNoteEdit] = useState(null);
 
   // * handle note input change
   const handleNoteChange = (e) => {
     setNewNote(e.target.value);
-  };
-
-  // * handle edit note change
-  const handleEditNoteChange = (e) => {
-    setEditNote({
-      ...editNote,
-      content: e.target.value,
-    });
-  };
-
-  // * handle edit note modal close
-  const handleEditNotePopupClose = () => {
-    setEditNote(null);
   };
 
   // * initially fetch existing notes from Firestore
@@ -40,9 +30,7 @@ export default function NotesComponent({ user }) {
         console.error("Error fetching notes: ", error);
       }
     };
-    if (user) {
-      fetchNotes();
-    }
+    if (user) fetchNotes();
   }, [user]);
 
   // * add a new note
@@ -97,7 +85,7 @@ export default function NotesComponent({ user }) {
     try {
       if (note.content.trim() === "") {
         deleteNote(note);
-        setEditNote(null);
+        setNoteEdit(null);
         return;
       }
       const userRef = doc(db, "users", user.uid);
@@ -107,7 +95,7 @@ export default function NotesComponent({ user }) {
       setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
       // add the edited note to the notes array with when it was updated
       setNotes((prevNotes) => [...prevNotes, { ...note, updatedAt: new Date().toLocaleString() }]);
-      setEditNote(null);
+      setNoteEdit(null);
     } catch (error) {
       console.error("Error updating note: ", error);
     }
@@ -130,7 +118,7 @@ export default function NotesComponent({ user }) {
   const filteredPinnedNotes = notes.filter((note) => note.pinned);
 
   return (
-    <>
+    <Widget id="notes">
       {/* widget header */}
       <div className="bg-yellow-200 h-12 items-center grid grid-cols-3 rounded-t-lg w-full text-center font-bold p-3">
         <div className="col-span-1 justify-self-start"></div>
@@ -209,7 +197,7 @@ export default function NotesComponent({ user }) {
                       </svg>
                     </div>
                     {/* edit note icon */}
-                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote(note)}>
+                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setNoteEdit(note)}>
                       <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                         <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -268,7 +256,7 @@ export default function NotesComponent({ user }) {
                       </svg>
                     </div>
                     {/* edit note icon */}
-                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setEditNote(note)}>
+                    <div className="cursor-pointer transition hover:scale-110" onClick={() => setNoteEdit(note)}>
                       <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
                         <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                         <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -328,85 +316,7 @@ export default function NotesComponent({ user }) {
       )}
 
       {/* edit note popup */}
-      {editNote && (
-        <div className="edit-note-popup fixed z-10 inset-0 overflow-y-auto">
-          <div className="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-            {/* overlay */}
-            <div className="fixed inset-0 transition-opacity" aria-hidden="true">
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-            </div>
-
-            {/* popup content */}
-            <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">
-              &#8203;
-            </span>
-            <div
-              className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-              role="dialog"
-              aria-modal="true"
-              aria-labelledby="modal-headline"
-            >
-              {/* popup header */}
-              <div className="bg-yellow-200 h-12 flex items-center justify-center gap-1 rounded-t-lg w-full text-center font-bold p-3">
-                <div>Edit Note</div>
-                <svg className="h-6 w-6" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-                  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-                  <g id="SVGRepo_iconCarrier">
-                    <g id="File / Note_Edit">
-                      <path
-                        id="Vector"
-                        d="M10.0002 4H7.2002C6.08009 4 5.51962 4 5.0918 4.21799C4.71547 4.40973 4.40973 4.71547 4.21799 5.0918C4 5.51962 4 6.08009 4 7.2002V16.8002C4 17.9203 4 18.4801 4.21799 18.9079C4.40973 19.2842 4.71547 19.5905 5.0918 19.7822C5.5192 20 6.07899 20 7.19691 20H16.8031C17.921 20 18.48 20 18.9074 19.7822C19.2837 19.5905 19.5905 19.2839 19.7822 18.9076C20 18.4802 20 17.921 20 16.8031V14M16 5L10 11V14H13L19 8M16 5L19 2L22 5L19 8M16 5L19 8"
-                        stroke="#000000"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      ></path>
-                    </g>
-                  </g>
-                </svg>
-              </div>
-              {/* popup body */}
-              <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <div className="w-full">
-                  <div className="mb-2 flex flex-col items-center justify-center">
-                    <label htmlFor="note" className="block text-gray-700 font-bold mb-2 text-lg">
-                      Note
-                    </label>
-                    <textarea
-                      type="text"
-                      onChange={handleEditNoteChange}
-                      value={editNote.content}
-                      placeholder="Write a note..."
-                      className=" flex-col flex-grow w-4/5 py-1.5 border border-gray-300 rounded focus:outline-none"
-                    />
-                  </div>
-                  <div className="text-sm italic text-center">
-                    {!editNote.updatedAt ? "Created" : "Last updated"} at {editNote.createdAt}
-                  </div>
-                </div>
-              </div>
-              {/* popup footer */}
-              <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-                <button
-                  onClick={() => updateNote(editNote)}
-                  type="button"
-                  className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Update
-                </button>
-                <button
-                  onClick={handleEditNotePopupClose}
-                  type="button"
-                  className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-                >
-                  Cancel
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-    </>
+      <NoteEditPopup noteEdit={noteEdit} setNoteEdit={setNoteEdit} updateNote={updateNote} />
+    </Widget>
   );
 }

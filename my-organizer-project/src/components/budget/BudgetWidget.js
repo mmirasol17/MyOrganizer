@@ -1,7 +1,8 @@
 import React, { useEffect, useRef } from "react";
 import { Chart } from "chart.js/auto";
+import Widget from "../ui/Widget";
 
-export default function BudgetComponent({ user }) {
+export default function BudgetWidget({ user }) {
   const data = {
     labels: ["Expenses", "Earnings", "Savings"],
     datasets: [
@@ -97,7 +98,7 @@ export default function BudgetComponent({ user }) {
   }, []);
 
   return (
-    <>
+    <Widget id="budget">
       <div className="bg-green-200 h-12 flex gap-1 rounded-t-lg w-full items-center justify-center p-3 font-bold">
         <div>My Budget Summary</div>
         <svg className="h-6 w-6 cf-icon-svg" fill="#000000" viewBox="-1.7 0 20.4 20.4" xmlns="http://www.w3.org/2000/svg">
@@ -123,6 +124,6 @@ export default function BudgetComponent({ user }) {
           </div>
         </div>
       </div>
-    </>
+    </Widget>
   );
 }
