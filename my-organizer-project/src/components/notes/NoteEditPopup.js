@@ -1,18 +1,42 @@
 import React, { useState, useEffect } from "react";
 import Popup from "../ui/Popup";
+import { db, collection, doc, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
 
-export default function NoteEditPopupPopup({ noteEdit, setNoteEdit, updateNote }) {
+export default function NoteEditPopupPopup({ user, noteEdit, setNoteEdit, setNotes }) {
   const [show, setShow] = useState(false);
 
+  // * update an edited note
+  const updateNote = async (note) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      if (note.content.trim() === "") {
+        await deleteDoc(noteRef);
+        setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+        setNoteEdit(null);
+        return;
+      }
+
+      await updateDoc(noteRef, { content: note.content, updatedAt: new Date().toLocaleString() });
+      // get rid of the edited note from the notes array
+      setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
+      // add the edited note to the notes array with when it was updated
+      setNotes((prevNotes) => [...prevNotes, { ...note, updatedAt: new Date().toLocaleString() }]);
+      setNoteEdit(null);
+    } catch (error) {
+      console.error("Error updating note: ", error);
+    }
+  };
+
   // * handle edit note change
-  const handlenoteEditChange = (e) => {
+  const handleNoteEditChange = (e) => {
     setNoteEdit({
       ...noteEdit,
       content: e.target.value,
     });
   };
   // * handle edit note popup close
-  const handlenoteEditPopupClose = () => {
+  const handleNoteEditPopupClose = () => {
     setShow(false);
   };
 
@@ -28,13 +52,13 @@ export default function NoteEditPopupPopup({ noteEdit, setNoteEdit, updateNote }
     if (!show) {
       setNoteEdit(null);
     }
-  }, [show]);
+  }, [show, setNoteEdit]);
 
   // * the popup ui
   return (
     <>
       {noteEdit && (
-        <Popup open={show} setOpen={setShow} onClose={handlenoteEditPopupClose}>
+        <Popup open={show} setOpen={setShow} onClose={handleNoteEditPopupClose}>
           {/* popup header */}
           <div className="bg-yellow-200 h-12 flex items-center justify-center gap-1 rounded-t-lg w-full text-center font-bold p-3">
             <div>Edit Note</div>
@@ -64,7 +88,7 @@ export default function NoteEditPopupPopup({ noteEdit, setNoteEdit, updateNote }
                 </label>
                 <textarea
                   type="text"
-                  onChange={handlenoteEditChange}
+                  onChange={handleNoteEditChange}
                   value={noteEdit.content}
                   placeholder="Write a note..."
                   className="text-center flex-col flex-grow w-4/5 py-1.5 border border-gray-300 rounded focus:outline-none"
@@ -85,7 +109,7 @@ export default function NoteEditPopupPopup({ noteEdit, setNoteEdit, updateNote }
               Update
             </button>
             <button
-              onClick={handlenoteEditPopupClose}
+              onClick={handleNoteEditPopupClose}
               type="button"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
             >

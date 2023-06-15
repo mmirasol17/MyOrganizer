@@ -1,6 +1,45 @@
 import React from "react";
+import { db, doc, collection, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
 
-export default function NoteOptions({ note, pinned, pinNote, unpinNote, setNoteEdit, deleteNote }) {
+export default function NoteOptions({ user, note, pinned, setNotes, setNoteEdit }) {
+  // * pin a note
+  const pinNote = async (note) => {
+    if (!note.pinned) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const noteRef = doc(collection(userRef, "notes"), note.id);
+        await updateDoc(noteRef, { pinned: true });
+        setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: true } : n)));
+      } catch (error) {
+        console.error("Error pinning note: ", error);
+      }
+    }
+  };
+
+  // * unpin a note
+  const unpinNote = async (note) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      await updateDoc(noteRef, { pinned: false });
+      setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: false } : n)));
+    } catch (error) {
+      console.error("Error unpinning note: ", error);
+    }
+  };
+
+  // * delete a note
+  const deleteNote = async (note) => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const noteRef = doc(collection(userRef, "notes"), note.id);
+      await deleteDoc(noteRef);
+      setNotes((prevNotes) => prevNotes.filter((n) => n !== note));
+    } catch (error) {
+      console.error("Error deleting note: ", error);
+    }
+  };
+
   return (
     <>
       {pinned ? (

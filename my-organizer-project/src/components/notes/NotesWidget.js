@@ -58,65 +58,6 @@ export default function NotesWidget({ user }) {
     }
   };
 
-  // * pin a note
-  const pinNote = async (note) => {
-    if (!note.pinned) {
-      try {
-        const userRef = doc(db, "users", user.uid);
-        const noteRef = doc(collection(userRef, "notes"), note.id);
-        await updateDoc(noteRef, { pinned: true });
-        setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: true } : n)));
-      } catch (error) {
-        console.error("Error pinning note: ", error);
-      }
-    }
-  };
-
-  // * unpin a note
-  const unpinNote = async (note) => {
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const noteRef = doc(collection(userRef, "notes"), note.id);
-      await updateDoc(noteRef, { pinned: false });
-      setNotes((prevNotes) => prevNotes.map((n) => (n === note ? { ...n, pinned: false } : n)));
-    } catch (error) {
-      console.error("Error unpinning note: ", error);
-    }
-  };
-
-  // * update an edited note
-  const updateNote = async (note) => {
-    try {
-      if (note.content.trim() === "") {
-        deleteNote(note);
-        setNoteEdit(null);
-        return;
-      }
-      const userRef = doc(db, "users", user.uid);
-      const noteRef = doc(collection(userRef, "notes"), note.id);
-      await updateDoc(noteRef, { content: note.content, updatedAt: new Date().toLocaleString() });
-      // get rid of the edited note from the notes array
-      setNotes((prevNotes) => prevNotes.filter((n) => n.id !== note.id));
-      // add the edited note to the notes array with when it was updated
-      setNotes((prevNotes) => [...prevNotes, { ...note, updatedAt: new Date().toLocaleString() }]);
-      setNoteEdit(null);
-    } catch (error) {
-      console.error("Error updating note: ", error);
-    }
-  };
-
-  // * delete a note
-  const deleteNote = async (note) => {
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const noteRef = doc(collection(userRef, "notes"), note.id);
-      await deleteDoc(noteRef);
-      setNotes((prevNotes) => prevNotes.filter((n) => n !== note));
-    } catch (error) {
-      console.error("Error deleting note: ", error);
-    }
-  };
-
   // * separate pinned and unpinned notes
   const unpinnedNotes = notes.filter((note) => !note.pinned);
   const filteredPinnedNotes = notes.filter((note) => note.pinned);
@@ -148,7 +89,7 @@ export default function NotesWidget({ user }) {
               {filteredPinnedNotes.map((note) => (
                 <NoteCard key={note.id} note={note} color="yellow-200">
                   <div className="flex gap-2 items-center">
-                    <NoteOptions note={note} pinned={true} pinNote={pinNote} unpinNote={unpinNote} setNoteEdit={setNoteEdit} deleteNote={deleteNote} />
+                    <NoteOptions user={user} note={note} pinned={true} setNotes={setNotes} setNoteEdit={setNoteEdit} />
                   </div>
                 </NoteCard>
               ))}
@@ -161,7 +102,7 @@ export default function NotesWidget({ user }) {
               {unpinnedNotes.map((note) => (
                 <NoteCard key={note.id} note={note} color="yellow-100">
                   <div className="flex gap-2 items-center">
-                    <NoteOptions note={note} pinned={false} pinNote={pinNote} unpinNote={unpinNote} setNoteEdit={setNoteEdit} deleteNote={deleteNote} />
+                    <NoteOptions user={user} note={note} pinned={false} setNotes={setNotes} setNoteEdit={setNoteEdit} />
                   </div>
                 </NoteCard>
               ))}
@@ -174,7 +115,7 @@ export default function NotesWidget({ user }) {
       <NotesEmptyMsg show={notes.length === 0} />
 
       {/* edit note popup */}
-      <NoteEditPopup noteEdit={noteEdit} setNoteEdit={setNoteEdit} updateNote={updateNote} />
+      <NoteEditPopup user={user} noteEdit={noteEdit} setNoteEdit={setNoteEdit} setNotes={setNotes} />
     </Widget>
   );
 }
