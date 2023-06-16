@@ -99,23 +99,26 @@ export default function CalendarMonth({
                   </div>
                 </div>
 
-                {dayEvents.map((event, index) =>
-                  index < 2 ? (
-                    <div
-                      className={`transition hover:scale-105 rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200 hover:bg-${event.color}-400`}
-                      key={event.name}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleEventClick(event);
-                      }}
-                    >
-                      <div>{event.time} |&nbsp;</div>
-                      <div className="font-bold">{event.name}</div>
-                    </div>
-                  ) : index === 2 ? (
-                    renderEventButton(dayEvents.length - 2)
-                  ) : null
-                )}
+                {dayEvents.map((event, index) => {
+                  if (index < 2) {
+                    return (
+                      <div
+                        className={`transition hover:scale-105 rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200 hover:bg-${event.color}-400`}
+                        key={event.name}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEventClick(event);
+                        }}
+                      >
+                        <div>{event.time} |&nbsp;</div>
+                        <div className="font-bold">{event.name}</div>
+                      </div>
+                    );
+                  } else if (index === 2) {
+                    return renderEventButton(dayEvents.length - 2);
+                  }
+                  return null;
+                })}
               </div>
             );
           })}

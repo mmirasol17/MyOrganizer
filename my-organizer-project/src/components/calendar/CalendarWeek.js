@@ -104,13 +104,21 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                     handleDayClick(weekDay);
                   }}
                 >
+                  {/* Box timeslot for each hour of the day */}
                   {Array.from({ length: 23 }, (_, i) => (
                     <div key={i} className="border-b border-gray-300 relative" style={{ height: "33px" }}>
                       {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
                     </div>
                   ))}
-
-                  {dayEvents.map((event, index) => (index < 2 ? <div key={event.name}>{event.name}</div> : index === 2 ? renderEventButton(dayEvents.length - 2) : null))}
+                  {/* Show each event in its corresponding timeslot */}
+                  {dayEvents.map((event, index) => {
+                    if (index < 2) {
+                      return <div key={event.id}>{event.name}</div>;
+                    } else if (index === 2) {
+                      return renderEventButton(dayEvents.length - 2);
+                    }
+                    return null;
+                  })}
                 </div>
               </>
             );

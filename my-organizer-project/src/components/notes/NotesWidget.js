@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { db, collection, doc, addDoc, getDocs, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
+import { db, collection, doc, addDoc, getDocs } from "../../firebase/FirebaseConfig";
 import Widget from "../ui/Widget";
 
 import NoteEditPopup from "./NoteEditPopup";

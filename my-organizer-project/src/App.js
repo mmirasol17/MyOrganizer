@@ -47,22 +47,22 @@ function App() {
           <Routes>
             {/* default route -> dashboard if logged in, is -> home if not */}
             {user ? (
-              <Route id="default-authenticated" path="/" element={<DashboardPage user={user} />} />
+              <Route key="default-authenticated" path="/" element={<DashboardPage user={user} />} />
             ) : (
-              <Route id="default-unauthenticated" path="/" element={<HomePage />} />
+              <Route key="default-unauthenticated" path="/" element={<HomePage />} />
             )}
 
             {/* dashboard route shows the page if logged in, show login page if not */}
             {user ? (
-              <Route id="dashboard-authenticated" path="/dashboard" element={<DashboardPage user={user} />} />
+              <Route key="dashboard-authenticated" path="/dashboard" element={<DashboardPage user={user} />} />
             ) : (
-              <Route id="dashboard-unauthenticated" path="/dashboard" element={<LoginPage user={user} />} />
+              <Route key="dashboard-unauthenticated" path="/dashboard" element={<LoginPage user={user} />} />
             )}
 
             {/* other routesthat  won't change */}
-            <Route id="login" path="/login" element={<LoginPage user={user} />} />
-            <Route id="signup" path="/signup" element={<SignupPage user={user} />} />
-            <Route id="not-found" path="*" element={<NotFoundPage />} />
+            <Route key="login" path="/login" element={<LoginPage user={user} />} />
+            <Route key="signup" path="/signup" element={<SignupPage user={user} />} />
+            <Route key="not-found" path="*" element={<NotFoundPage />} />
           </Routes>
         )}
       </div>

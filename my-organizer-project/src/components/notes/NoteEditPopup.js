@@ -100,7 +100,7 @@ export default function NoteEditPopupPopup({ user, noteEdit, setNoteEdit, setNot
             </div>
           </div>
           {/* popup footer */}
-          <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div className="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
               onClick={() => updateNote(noteEdit)}
               type="button"
