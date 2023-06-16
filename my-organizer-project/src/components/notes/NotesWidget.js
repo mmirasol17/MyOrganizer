@@ -100,7 +100,7 @@ export default function NotesWidget({ user }) {
           {unpinnedNotes.length > 0 && (
             <ul>
               {unpinnedNotes.map((note) => (
-                <NoteCard key={note.id} note={note} color="yellow-100">
+                <NoteCard key={note.id} note={note} color="yellow-200">
                   <div className="flex gap-2 items-center">
                     <NoteOptions user={user} note={note} pinned={false} setNotes={setNotes} setNoteEdit={setNoteEdit} />
                   </div>

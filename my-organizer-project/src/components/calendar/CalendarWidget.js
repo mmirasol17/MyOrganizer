@@ -6,6 +6,7 @@ import CalendarMonth from "./CalendarMonth";
 import CalendarWeek from "./CalendarWeek";
 import EventPopup from "./EventPopup";
 import DayPopup from "./DayPopup";
+import EventAddPopup from "./EventAddPopup";
 
 export default function CalendarWidget({ user }) {
   // * calendar view mode management
@@ -126,19 +127,7 @@ export default function CalendarWidget({ user }) {
       <EventPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />
 
       {/* event add popup that shows up if user wants to create new event for a day */}
-      {eventAdd && (
-        <div className="fixed top-0 left-0 right-0 bottom-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div className="bg-white p-8 rounded-lg popup">
-            <div className="text-xl font-bold mb-2">New Event</div>
-            {/* <div className="text-sm mb-2">{format(eventAdd.date, "eeee, MMMM d, yyyy")}</div>
-            <div className="text-sm mb-2">{eventAdd.time}</div>
-            <div className="text-sm mb-2">{eventAdd.type}</div> */}
-            <button className="text-blue-500 font-bold mt-4" onClick={handleeventAddPopupClose}>
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      <EventAddPopup eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
 
       {/* event edit popup that shows up if user wants to edit an event */}
     </Widget>

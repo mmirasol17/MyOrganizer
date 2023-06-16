@@ -1,8 +1,10 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { v4 as uuid } from "uuid";
 
 export default function Dropdown({ options, selectedOption, setSelectedOption }) {
   const [isOpen, setIsOpen] = useState(false);
+  const dropdownButtonRef = useRef(null);
+  const dropdownMenuRef = useRef(null);
   const dropdownId = `dropdown-menu-${uuid()}`;
 
   const handleOptionChange = (option) => {
@@ -13,11 +15,24 @@ export default function Dropdown({ options, selectedOption, setSelectedOption })
     setIsOpen(!isOpen);
   };
 
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownButtonRef.current && dropdownMenuRef.current && !dropdownButtonRef.current.contains(event.target) && !dropdownMenuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  });
+
   return (
     <div className="relative inline-block text-left">
       <div>
         <span className="rounded-md shadow-sm">
           <button
+            ref={dropdownButtonRef}
             type="button"
             className="inline-flex items-center justify-center w-28 pl-4 pr-2 gap-2 py-2 text-sm text-white font-bold bg-gray-800 rounded-md hover:bg-gray-600 focus:outline-none"
             id={dropdownId}
@@ -44,6 +59,7 @@ export default function Dropdown({ options, selectedOption, setSelectedOption })
 
       {isOpen && (
         <div
+          ref={dropdownMenuRef}
           className="origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5"
           role="menu"
           aria-orientation="vertical"

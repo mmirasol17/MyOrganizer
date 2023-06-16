@@ -37,7 +37,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
               </g>
             </svg>
           </button>
-          <h2 className="text-2xl font-bold w-80">{`${format(weekStartDate, "MMMM d")} - ${format(weekEndDate, "MMMM d, yyyy")}`}</h2>
+          <h2 className="text-2xl font-bold mx-4">{`${format(weekStartDate, "MMMM d")} - ${format(weekEndDate, "MMMM d, yyyy")}`}</h2>
           <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handleNextWeek}>
             <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
               <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -91,36 +91,33 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
             ))}
           </div>
 
-          {/* Content of each day */}
           {weekDays.map((weekDay) => {
             const dayEvents = getEventsForDay(weekDay);
 
             return (
-              <>
-                <div
-                  key={weekDay.toString()}
-                  className={`text-center border h-full border-gray-300`}
-                  onClick={() => {
-                    handleDayClick(weekDay);
-                  }}
-                >
-                  {/* Box timeslot for each hour of the day */}
-                  {Array.from({ length: 23 }, (_, i) => (
-                    <div key={i} className="border-b border-gray-300 relative" style={{ height: "33px" }}>
-                      {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
-                    </div>
-                  ))}
-                  {/* Show each event in its corresponding timeslot */}
-                  {dayEvents.map((event, index) => {
-                    if (index < 2) {
-                      return <div key={event.id}>{event.name}</div>;
-                    } else if (index === 2) {
-                      return renderEventButton(dayEvents.length - 2);
-                    }
-                    return null;
-                  })}
-                </div>
-              </>
+              <div
+                key={weekDay.toString()}
+                className="text-center border h-full border-gray-300"
+                onClick={() => {
+                  handleDayClick(weekDay);
+                }}
+              >
+                {/* Box timeslot for each hour of the day */}
+                {Array.from({ length: 23 }, (_, i) => (
+                  <div key={i} className="border-b border-gray-300 relative" style={{ height: "33px" }}>
+                    {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
+                  </div>
+                ))}
+                {/* Show each event in its corresponding timeslot */}
+                {dayEvents.map((event, index) => {
+                  if (index < 2) {
+                    return <div key={event.id}>{event.name}</div>;
+                  } else if (index === 2) {
+                    return renderEventButton(dayEvents.length - 2);
+                  }
+                  return null;
+                })}
+              </div>
             );
           })}
         </div>
