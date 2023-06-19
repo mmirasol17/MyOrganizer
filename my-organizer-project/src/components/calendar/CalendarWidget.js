@@ -124,7 +124,7 @@ export default function CalendarWidget({ user }) {
       <EventPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />
 
       {/* event add popup that shows up if user wants to create new event for a day */}
-      <EventAddPopup eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
+      <EventAddPopup user={user} eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
 
       {/* event edit popup that shows up if user wants to edit an event */}
     </Widget>

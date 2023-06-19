@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
-import { format, set } from "date-fns";
-import { db, collection, doc, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
+import { format } from "date-fns";
+import { db, collection, addDoc, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 
-export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
+export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }) {
   const [show, setShow] = useState(false);
 
   const [eventColor, setEventColor] = useState("blue");
@@ -12,6 +12,13 @@ export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
   const [eventTime, setEventTime] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventType, setEventType] = useState("created");
+  const [repeatDays, setRepeatDays] = useState([]);
+  const [repeatEnd, setRepeatEnd] = useState("");
+  const [repeatOption, setRepeatOption] = useState("none");
+
+  const handleRepeatOptionChange = (e) => {
+    setRepeatOption(e.target.value);
+  };
 
   // * handle event popup close
   const handleEventAddPopupClose = () => {
@@ -19,9 +26,27 @@ export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
   };
 
   // * handle edit note click
-  const handleEventSaveClick = (e) => {
-    setEvents((prevEvents) => [...prevEvents, eventAdd]);
-    setShow(false);
+  const handleEventSaveClick = async () => {
+    const event = {
+      color: eventColor,
+      name: eventName,
+      date: eventDate,
+      time: eventTime.toLocaleUpperCase(),
+      description: eventDescription,
+      type: eventType,
+      repeatOption,
+      repeatDays,
+      repeatEnd,
+    };
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const eventsRef = collection(userRef, "events");
+      const newEventRef = await addDoc(eventsRef, event);
+      setEvents((prevEvents) => [...prevEvents, { id: newEventRef.id, ...event }]);
+    } catch (error) {
+      console.error("Error adding event: ", error);
+    }
   };
 
   // * handle event name change
@@ -34,11 +59,24 @@ export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
   };
 
   const handleEventTimeChange = (e) => {
+    console.log(e.target.value);
     setEventTime(e.target.value);
   };
 
   const handleEventDescriptionChange = (e) => {
     setEventDescription(e.target.value);
+  };
+
+  const handleRepeatDayToggle = (day) => {
+    if (repeatDays.includes(day)) {
+      setRepeatDays((prevDays) => prevDays.filter((d) => d !== day));
+    } else {
+      setRepeatDays((prevDays) => [...prevDays, day]);
+    }
+  };
+
+  const handleRepeatEndChange = (e) => {
+    setRepeatEnd(e.target.value);
   };
 
   // * when day changes, show the popup and initialize the event
@@ -49,6 +87,9 @@ export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
       setEventTime(eventAdd ? eventAdd.time : "");
       setEventDescription("");
+      setRepeatDays([eventAdd ? format(eventAdd, "eeee") : ""]);
+      setRepeatOption("none");
+      setRepeatEnd("");
       setEventType(eventAdd ? eventAdd.type : "created");
       setShow(true);
     }
@@ -160,7 +201,115 @@ export default function EventAddPopup({ eventAdd, setEventAdd, setEvents }) {
                 placeholder="Description (optional)"
               />
             </div>
+
+            {/* repeat event */}
+            <div className="mb-4 flex flex-col">
+              <label htmlFor="repeat" className="block text-gray-700 font-bold mb-2 text-lg">
+                Repeat
+              </label>
+              <div className="flex flex-col gap-2">
+                {/* repeat options */}
+                <select
+                  name="repeat"
+                  id="repeat"
+                  value={repeatOption}
+                  onChange={handleRepeatOptionChange}
+                  className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                >
+                  <option value="none">Do not repeat</option>
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                  <option value="yearly">Yearly</option>
+                </select>
+
+                {repeatOption === "weekly" && (
+                  <div>
+                    <label className="block text-gray-700 font-bold mb-2 text-lg">Repeat on:</label>
+                    <div className="flex gap-2">
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Sunday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Sunday")}
+                      >
+                        Sun
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Monday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Monday")}
+                      >
+                        Mon
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Tuesday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Tuesday")}
+                      >
+                        Tue
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Wednesday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Wednesday")}
+                      >
+                        Wed
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Thursday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Thursday")}
+                      >
+                        Thu
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Friday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Friday")}
+                      >
+                        Fri
+                      </button>
+                      <button
+                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                          repeatDays.includes("Saturday") && "bg-gray-800 border-none text-white font-bold"
+                        }`}
+                        onClick={() => handleRepeatDayToggle("Saturday")}
+                      >
+                        Sat
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {repeatOption !== "none" && (
+                  <>
+                    <div>
+                      {/* repeat end date input */}
+                      <label htmlFor="endDate" className="block text-gray-700 font-bold mb-2 text-lg">
+                        End on
+                      </label>
+                      <input
+                        type="date"
+                        name="endDate"
+                        id="endDate"
+                        value={repeatEnd}
+                        onChange={handleRepeatEndChange}
+                        className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                        placeholder="Repeat end date"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
+
           {/* popup footer */}
           <div className="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
             <button
