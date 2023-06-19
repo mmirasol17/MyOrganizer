@@ -1,12 +1,12 @@
 import React from "react";
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, isToday, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
 
 export default function CalendarMonth({
   currentDate,
   setCurrentDate,
   selectedDay,
   handleDayClick,
-  handleDayEventClick,
+  handleNewEventClick,
   handleEventClick,
   getEventsForDay,
   renderEventButton,
@@ -32,6 +32,7 @@ export default function CalendarMonth({
     days.push(day);
     day = addDays(day, 1);
   }
+
   return (
     <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
       <div className="flex flex-col">
@@ -70,7 +71,6 @@ export default function CalendarMonth({
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
-            const isToday = isSameDay(day, new Date());
 
             return (
               <div
@@ -82,13 +82,13 @@ export default function CalendarMonth({
                   height: "90px",
                 }}
                 onClick={() => {
-                  handleDayEventClick(day);
+                  handleNewEventClick(day);
                 }}
               >
                 <div className="w-full cursor-pointer flex items-center justify-center">
                   <div
                     className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 ${
-                      isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"
+                      isToday(day) ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"
                     } ${isSelectedDay ? "text-blue-500" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -103,7 +103,7 @@ export default function CalendarMonth({
                   if (index < 2) {
                     return (
                       <div
-                        className={`transition hover:scale-105 rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200 hover:bg-${event.color}-400`}
+                        className={`transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200`}
                         key={event.name}
                         onClick={(e) => {
                           e.stopPropagation();

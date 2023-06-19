@@ -63,12 +63,9 @@ export default function CalendarWidget({ user }) {
     setSelectedEvent(event);
   };
 
-  // * For when the user clicks on a day event
-  const handleDayEventClick = (event) => {
-    setEventAdd(event);
-  };
-  const handleeventAddPopupClose = () => {
-    setEventAdd(null);
+  // * For when the user clicks on a day to add an event
+  const handleNewEventClick = (day) => {
+    setEventAdd(day);
   };
 
   // * For getting the events for a day
@@ -98,7 +95,7 @@ export default function CalendarWidget({ user }) {
           events={events}
           setEvents={setEvents}
           getEventsForDay={getEventsForDay}
-          handleDayEventClick={handleDayEventClick}
+          handleNewEventClick={handleNewEventClick}
           handleEventClick={handleEventClick}
           renderEventButton={renderEventButton}
         />
@@ -112,7 +109,7 @@ export default function CalendarWidget({ user }) {
           events={events}
           setEvents={setEvents}
           getEventsForDay={getEventsForDay}
-          handleDayEventClick={handleDayEventClick}
+          handleNewEventClick={handleNewEventClick}
           handleEventClick={handleEventClick}
           renderEventButton={renderEventButton}
         />

@@ -1,5 +1,5 @@
 import React from "react";
-import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
+import { format, isToday, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
 
 export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay, handleDayClick, getEventsForDay, renderEventButton }) {
   // * week calendar date management
@@ -69,11 +69,10 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
           <div className="p-2 font-bold"></div> {/* Empty column */}
           {/* Day Numbers */}
           {weekDays.map((weekDay) => {
-            const isToday = isSameDay(weekDay, new Date());
             const isSelectedDay = isSameDay(weekDay, selectedDay);
             return (
               <div className="flex items-center justify-center w-full" key={weekDay.toString()}>
-                <div className={`font-bold w-8 ${isToday ? "text-white bg-blue-500 rounded-full p-1" : ""} ${isSelectedDay ? "text-blue-500" : ""}`}>
+                <div className={`font-bold w-8 ${isToday(weekDay) ? "text-white bg-blue-500 rounded-full p-1" : ""} ${isSelectedDay ? "text-blue-500" : ""}`}>
                   {format(weekDay, "d")}
                 </div>
               </div>
