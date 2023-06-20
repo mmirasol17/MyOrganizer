@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { format } from "date-fns";
+import { format, parseISO } from "date-fns";
 import { db, collection, addDoc, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 
@@ -23,30 +23,6 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   // * handle event popup close
   const handleEventAddPopupClose = () => {
     setShow(false);
-  };
-
-  // * handle edit note click
-  const handleEventSaveClick = async () => {
-    const event = {
-      color: eventColor,
-      name: eventName,
-      date: eventDate,
-      time: eventTime.toLocaleUpperCase(),
-      description: eventDescription,
-      type: eventType,
-      repeatOption,
-      repeatDays,
-      repeatEnd,
-    };
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const eventsRef = collection(userRef, "events");
-      const newEventRef = await addDoc(eventsRef, event);
-      setEvents((prevEvents) => [...prevEvents, { id: newEventRef.id, ...event }]);
-    } catch (error) {
-      console.error("Error adding event: ", error);
-    }
   };
 
   // * handle event name change
@@ -79,18 +55,44 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     setRepeatEnd(e.target.value);
   };
 
+  // * handle edit note click
+  const handleEventSaveClick = async () => {
+    const event = {
+      color: eventColor,
+      name: eventName.trim(),
+      date: parseISO(eventDate),
+      time: eventTime,
+      description: eventDescription,
+      type: eventType,
+      repeatOption,
+      repeatDays: JSON.stringify(repeatDays),
+      repeatEnd,
+    };
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const eventsRef = collection(userRef, "events");
+      const newEventRef = await addDoc(eventsRef, event);
+      setEvents((prevEvents) => [...prevEvents, { id: newEventRef.id, ...event }]);
+    } catch (error) {
+      console.error("Error adding event: ", error);
+    } finally {
+      setShow(false);
+    }
+  };
+
   // * when day changes, show the popup and initialize the event
   useEffect(() => {
     if (eventAdd) {
       setEventColor("blue");
       setEventName("");
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
-      setEventTime(eventAdd ? eventAdd.time : "");
+      setEventTime(eventAdd && eventAdd.time ? eventAdd.time : "");
       setEventDescription("");
-      setRepeatDays([eventAdd ? format(eventAdd, "eeee") : ""]);
+      setRepeatDays(eventAdd ? [format(eventAdd, "eeee")] : []); // Convert to an array
       setRepeatOption("none");
       setRepeatEnd("");
-      setEventType(eventAdd ? eventAdd.type : "created");
+      setEventType(eventAdd && eventAdd.type ? eventAdd.type : "created");
       setShow(true);
     }
   }, [eventAdd]);

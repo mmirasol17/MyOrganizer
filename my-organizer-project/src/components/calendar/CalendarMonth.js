@@ -110,7 +110,7 @@ export default function CalendarMonth({
                           handleEventClick(event);
                         }}
                       >
-                        <div>{event.time} |&nbsp;</div>
+                        {event.time !== "" && event.time !== "all-day" && <div>{event.time} |&nbsp;</div>}
                         <div className="font-bold">{event.name}</div>
                       </div>
                     );
