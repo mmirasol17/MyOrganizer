@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { format, isSameDay } from "date-fns";
+import { format, isSameDay, set } from "date-fns";
+import { db, collection, doc, getDocs } from "../../firebase/FirebaseConfig";
 import Widget from "../ui/Widget";
 import CalendarHeader from "./CalendarHeader";
 import CalendarMonth from "./CalendarMonth";
@@ -53,6 +54,34 @@ export default function CalendarWidget({ user }) {
     };
     fetchHolidays();
   }, [currentDate]);
+
+  // * Fetch events from Firestore
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const eventsRef = collection(userRef, "events");
+        const snapshot = await getDocs(eventsRef);
+        if (!snapshot.empty) {
+          const fetchedEvents = snapshot.docs.map((doc) => {
+            const eventData = doc.data();
+            return {
+              id: doc.id,
+              ...eventData,
+              date: eventData.date.toDate(),
+            };
+          });
+          setEvents((prevEvents) => [...prevEvents, ...fetchedEvents]);
+        }
+      } catch (error) {
+        console.error("Error fetching events: ", error);
+      }
+    };
+    if (user) {
+      fetchEvents();
+      console.log("fetching events" + events);
+    }
+  }, [user]);
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
