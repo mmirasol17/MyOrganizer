@@ -4,10 +4,12 @@ import { auth, signInWithEmailAndPassword } from "../firebase/FirebaseConfig";
 import Footer from "../components/ui/Footer";
 
 export default function LoginPage({ user }) {
-  // * variables needed for this page
+  // * variables needed for storing user input states
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordVisible, setPasswordVisible] = useState(false);
+
+  // * variable needed for error handling
   const [error, setError] = useState("");
 
   // * redirect to dashboard if user is logged in
@@ -15,12 +17,12 @@ export default function LoginPage({ user }) {
     window.location.href = "/dashboard";
   }
 
-  // * toggle password visibility
+  // * function for handling password visibility toggle changes
   const togglePasswordVisibility = () => {
     setPasswordVisible(!passwordVisible);
   };
 
-  // * handle login
+  // * handle login form submit
   const handleSubmit = (event) => {
     event.preventDefault();
     signInWithEmailAndPassword(auth, email, password)
@@ -37,7 +39,7 @@ export default function LoginPage({ user }) {
       });
   };
 
-  // * return the login page
+  // * login page ui
   return (
     <>
       {!user && (

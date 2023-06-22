@@ -8,80 +8,66 @@ import Footer from "../components/ui/Footer";
 export default function SignupPage({ user }) {
   // * variables needed for the password form
   const [username, setUsername] = useState("");
-  const [validUsername, setValidUsername] = useState(true);
   const [email, setEmail] = useState("");
-  const [validEmail, setValidEmail] = useState(true);
   const [password, setPassword] = useState("");
-  const [passwordVisible, setPasswordVisible] = useState(false);
-  const [validPassword, setValidPassword] = useState(true);
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
+
+  // * variables needed for input validation
+  const [validUsername, setValidUsername] = useState(true);
+  const [validEmail, setValidEmail] = useState(true);
+  const [validPassword, setValidPassword] = useState(true);
   const [validConfirmPassword, setValidConfirmPassword] = useState(true);
   const [signupError, setSignupError] = useState("");
+
+  // * variables needed for toggling password visibility
+  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
 
   // * redirect to dashboard if user is logged in
   if (user) {
     window.location.href = "/dashboard";
   }
 
-  // * function to toggle password visibility
-  const togglePasswordVisibility = () => {
-    setPasswordVisible(!passwordVisible);
+  // * functions to handle variable state changes via user input
+  const handleUsernameChange = (e) => {
+    setUsername(e.target.value);
+    setValidUsername(validateUsername(e.target.value));
   };
-
-  // * function to validate password
-  const validatePassword = (value) => {
-    return value.length >= 8 && !/\s/.test(value);
+  const handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setValidEmail(validateEmail(e.target.value));
   };
-
-  // * function to handle password change
   const handlePasswordChange = (e) => {
-    const value = e.target.value;
-    setPassword(value);
-    setValidPassword(validatePassword(value));
+    setPassword(e.target.value);
+    setValidPassword(validatePassword(e.target.value));
+  };
+  const handleConfirmPasswordChange = (e) => {
+    setConfirmPassword(e.target.value);
+    setValidConfirmPassword(validateConfirmPassword(e.target.value));
   };
 
-  // * function to validate username
+  // * functions to validate user inputs
   const validateUsername = (value) => {
     const regex = /^[a-zA-Z0-9_-]+$/;
     return regex.test(value);
   };
-
-  // * function to handle username change
-  const handleUsernameChange = (e) => {
-    const value = e.target.value;
-    setUsername(value);
-    setValidUsername(validateUsername(value));
-  };
-
-  // * function to validate email
   const validateEmail = (value) => {
     const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return regex.test(value);
   };
-
-  // * function to handle email change
-  const handleEmailChange = (e) => {
-    const value = e.target.value;
-    setEmail(value);
-    setValidEmail(validateEmail(value));
+  const validatePassword = (value) => {
+    return value.length >= 8 && !/\s/.test(value);
   };
-
-  // * function to toggle confirm password visibility
-  const toggleConfirmPasswordVisibility = () => {
-    setConfirmPasswordVisible(!confirmPasswordVisible);
-  };
-
-  // * function to validate confirm password
   const validateConfirmPassword = (value) => {
     return value.length >= 8 && value === password;
   };
 
-  // * function to handle confirm password change
-  const handleConfirmPasswordChange = (e) => {
-    const value = e.target.value;
-    setConfirmPassword(value);
-    setValidConfirmPassword(validateConfirmPassword(value));
+  // * functions to handle toggle state changes
+  const togglePasswordVisibility = () => {
+    setPasswordVisible(!passwordVisible);
+  };
+  const toggleConfirmPasswordVisibility = () => {
+    setConfirmPasswordVisible(!confirmPasswordVisible);
   };
 
   // * function called when user submits the signup form
@@ -130,7 +116,7 @@ export default function SignupPage({ user }) {
     }
   };
 
-  // * the signup form UI
+  // * the signup page UI
   return (
     <>
       {!user && (

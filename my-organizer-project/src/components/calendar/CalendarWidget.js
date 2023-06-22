@@ -37,6 +37,7 @@ export default function CalendarWidget({ user }) {
         if (response.ok) {
           const holidays = await response.json();
           const formattedHolidays = holidays.map((holiday) => ({
+            id: `${year}: ${holiday.name}`,
             name: holiday.name,
             date: new Date(holiday.date),
             type: "holiday",
@@ -44,7 +45,12 @@ export default function CalendarWidget({ user }) {
             color: "red",
           }));
           const uniqueHolidays = formattedHolidays.filter((holiday, index, self) => index === self.findIndex((t) => t.name === holiday.name));
-          setEvents(uniqueHolidays);
+          setEvents((prevEvents) => {
+            const filteredHolidays = uniqueHolidays.filter((holiday) => {
+              return !prevEvents.some((event) => event.id === holiday.id && event.type === "holiday");
+            });
+            return [...prevEvents, ...filteredHolidays];
+          });
         } else {
           console.error("Failed to fetch holidays");
         }
@@ -104,7 +110,7 @@ export default function CalendarWidget({ user }) {
 
   const renderEventButton = (count) => {
     return (
-      <button className="text-blue-500 font-bold" onClick={() => setSelectedDay(day)}>
+      <button className="text-xs font-bold" onClick={() => setSelectedDay(day)}>
         {`+${count} more`}
       </button>
     );

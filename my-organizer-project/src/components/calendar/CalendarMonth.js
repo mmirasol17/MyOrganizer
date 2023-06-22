@@ -79,7 +79,7 @@ export default function CalendarMonth({
                   isSelectedDay ? "bg-blue-200" : ""
                 }`}
                 style={{
-                  height: "90px",
+                  height: "92px",
                 }}
                 onClick={() => {
                   handleNewEventClick(day);
@@ -100,11 +100,11 @@ export default function CalendarMonth({
                 </div>
 
                 {dayEvents.map((event, index) => {
-                  if (index < 2) {
+                  if (index < 3) {
                     return (
                       <div
-                        className={`transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs px-0.5 mb-0.5 bg-${event.color}-200`}
-                        key={event.name}
+                        className={`transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[1.2px] px-0.5 mb-0.5 bg-${event.color}-200`}
+                        key={event.id}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEventClick(event);
@@ -114,8 +114,16 @@ export default function CalendarMonth({
                         <div className="font-bold">{event.name}</div>
                       </div>
                     );
-                  } else if (index === 2) {
-                    return renderEventButton(dayEvents.length - 2);
+                  } else if (index === 3) {
+                    <div
+                      className="transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[1.2px] px-0.5 mb-0.5 bg-gray-200"
+                      key={index}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <div className="font-bold">+{dayEvents.length - 3} more</div>
+                    </div>;
                   }
                   return null;
                 })}

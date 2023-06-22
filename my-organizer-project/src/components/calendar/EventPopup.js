@@ -58,7 +58,7 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
                 <p className="text-gray-700 text-md ml-8">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</p>
               </div>
               {/* the time of the event */}
-              {selectedEvent.time !== "" && (
+              {selectedEvent.time && selectedEvent.time !== "" && (
                 <div className="flex items-center gap-2">
                   <svg className="w-6 h-6" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -69,6 +69,19 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
                     </g>
                   </svg>
                   <p className="text-gray-700 text-md">{selectedEvent.time}</p>
+                </div>
+              )}
+              {/* the event description */}
+              {selectedEvent.description && selectedEvent.description !== "" && (
+                <div className="flex items-center gap-2">
+                  <svg className="w-6 h-6" fill="#000000" viewBox="2 2 20 20" xmlns="http://www.w3.org/2000/svg">
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <path d="M21,7H3V4A1,1,0,0,1,4,3H20a1,1,0,0,1,1,1ZM3,20V9H21V20a1,1,0,0,1-1,1H4A1,1,0,0,1,3,20Zm3-6H18V12H6Zm0,4h6V16H6Z"></path>
+                    </g>
+                  </svg>
+                  <p className="text-gray-700 text-md">{selectedEvent.description}</p>
                 </div>
               )}
               {/* the event type */}
