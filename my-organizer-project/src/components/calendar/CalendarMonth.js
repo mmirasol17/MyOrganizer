@@ -100,30 +100,41 @@ export default function CalendarMonth({
                 </div>
 
                 {dayEvents.map((event, index) => {
-                  if (index < 3) {
+                  // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
+                  if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {
                     return (
                       <div
-                        className={`transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[1.2px] px-0.5 mb-0.5 bg-${event.color}-200`}
+                        className={`transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5 bg-${event.color}-200`}
                         key={event.id}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEventClick(event);
                         }}
                       >
-                        {event.time !== "" && event.time !== "all-day" && <div>{event.time} |&nbsp;</div>}
+                        {event.time !== "" && event.time !== "all-day" && (
+                          <div>
+                            {event.time.replace(/^0/, "").toLowerCase()}
+                            {event.time.slice(-2) === ":00" ? "" : ` |`}&nbsp;
+                          </div>
+                        )}
+
                         <div className="font-bold">{event.name}</div>
                       </div>
                     );
-                  } else if (index === 3) {
-                    <div
-                      className="transition hover:scale-[102%] rounded-md overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[1.2px] px-0.5 mb-0.5 bg-gray-200"
-                      key={index}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                      }}
-                    >
-                      <div className="font-bold">+{dayEvents.length - 3} more</div>
-                    </div>;
+                  }
+                  // if there are more than 4 events, show a button to show the rest
+                  else if (dayEvents.length > 4 && index === 4) {
+                    return (
+                      <div
+                        className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center hover:bg-gray-200 text-xs/3 px-0.5 mb-0.5"
+                        key={day.toString()}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                        }}
+                      >
+                        <div className="font-bold text-center">+{dayEvents.length - 3} more</div>
+                      </div>
+                    );
                   }
                   return null;
                 })}

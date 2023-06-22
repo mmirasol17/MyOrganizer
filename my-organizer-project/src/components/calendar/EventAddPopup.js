@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { format, parseISO } from "date-fns";
+import { format, parseISO, set } from "date-fns";
 import { db, collection, addDoc, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 
 export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }) {
   const [show, setShow] = useState(false);
-  const [error, setError] = useState(null);
 
   // * event data that will be saved to Firestore
   const [eventColor, setEventColor] = useState("blue");
@@ -25,161 +24,149 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   const [repeatEnd, setRepeatEnd] = useState("");
   const [repeatOption, setRepeatOption] = useState("none");
 
+  // * functions to handle state changes
+  const handleEventNameChange = (e) => {
+    setEventName(e.target.value);
+    setValidEventName(validateEventName(e));
+  };
+  const handleEventDateChange = (e) => {
+    setEventDate(e.target.value);
+    setValidEventDate(validateEventDate(e));
+  };
+  const handleEventTimeChange = (e) => {
+    setEventTime(e.target.value);
+  };
+  const handleEventDescriptionChange = (e) => {
+    setEventDescription(e.target.value);
+  };
+  const handleRepeatDayToggle = (day) => {
+    if (repeatDays.includes(day)) setRepeatDays((prevDays) => prevDays.filter((d) => d !== day));
+    else setRepeatDays((prevDays) => [...prevDays, day]);
+  };
   const handleRepeatOptionChange = (e) => {
     setRepeatOption(e.target.value);
   };
-
-  // * handle event popup close
+  const handleRepeatEndChange = (e) => {
+    setRepeatEnd(e.target.value);
+    setValidEventEndDate(validateEventEndDate(e));
+  };
   const handleEventAddPopupClose = () => {
     setShow(false);
   };
 
-  // * handle event name change
-  const handleEventNameChange = (e) => {
-    setEventName(e.target.value);
-    validateEventDate(e);
-  };
-
+  // * functions to validate inputs
   const validateEventName = (e) => {
     return e.target.value.length > 0;
   };
-
-  const handleEventDateChange = (e) => {
-    setEventDate(e.target.value);
-  };
-
   const validateEventDate = (e) => {
     return e.target.value.length > 0;
   };
-
-  const handleEventTimeChange = (e) => {
-    console.log(e.target.value);
-    setEventTime(e.target.value);
-  };
-
-  const handleEventDescriptionChange = (e) => {
-    setEventDescription(e.target.value);
-  };
-
-  const handleRepeatDayToggle = (day) => {
-    if (repeatDays.includes(day)) {
-      setRepeatDays((prevDays) => prevDays.filter((d) => d !== day));
-    } else {
-      setRepeatDays((prevDays) => [...prevDays, day]);
-    }
-  };
-
-  const handleRepeatEndChange = (e) => {
-    setRepeatEnd(e.target.value);
-  };
-
   const validateEventEndDate = (e) => {
     return e.target.value.length > 0;
   };
 
-  // * handle edit note click
-  const handleEventSaveClick = async () => {
-    const event = {
-      color: eventColor,
-      name: eventName.trim(),
-      date: parseISO(eventDate),
-      time: eventTime,
-      description: eventDescription,
-      type: eventType,
-    };
-
-    try {
-      const userRef = doc(db, "users", user.uid);
-      const eventsRef = collection(userRef, "events");
-
-      if (eventName === "") {
-        setError("No event name");
-        return;
-      }
-      if (eventDate === "") {
-        setError("No event date");
-        return;
-      }
-
-      // handle repeating events
-      if (repeatOption !== "none") {
-        if (repeatEnd === "") {
-          if (repeatOption === "daily") {
-            // repeat until the end date
-            let date = event.date;
-            while (date <= parseISO(repeatEnd)) {
-              const repeatedEvent = {
-                id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
-                ...event,
-                date: date,
-                type: "daily event",
-              };
-              await addDoc(eventsRef, repeatedEvent);
-              date = new Date(date.setDate(date.getDate() + 1));
-            }
-          } else if (repeatOption === "weekly") {
-            // repeat with the chosen repeat days until the end date
-            let date = event.date;
-            while (date <= parseISO(repeatEnd)) {
-              if (repeatDays.includes(format(date, "eeee"))) {
-                const repeatedEvent = {
-                  id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
-                  ...event,
-                  date: date,
-                  // show the repeat days in the event type
-                  type: `weekly event (${repeatDays.join(", ")})`,
-                };
-                await addDoc(eventsRef, repeatedEvent);
-              }
-              date = new Date(date.setDate(date.getDate() + 1));
-            }
-          } else if (repeatOption === "monthly") {
-            // repeat until the end date
-            let date = event.date;
-            while (date <= parseISO(repeatEnd)) {
-              const repeatedEvent = {
-                id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
-                ...event,
-                date: date,
-                type: "monthly event",
-              };
-              await addDoc(eventsRef, repeatedEvent);
-              date = new Date(date.setMonth(date.getMonth() + 1));
-            }
-          }
-        } else {
-          setError("No repeat end date");
-          return;
-        }
-      }
-      // handle non-repeating events
-      else {
-        await addDoc(eventsRef, {
-          id: `${format(event.date, "yyyy-MM-dd")}: ${event.name}`,
+  // * functions to create repeated events, whether daily, weekly, or monthly
+  const createDailyEvent = async (event, eventsRef, repeatEnd) => {
+    let date = event.date;
+    while (date <= parseISO(repeatEnd)) {
+      const repeatedEvent = {
+        id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
+        ...event,
+        date: date,
+        type: "daily event",
+      };
+      await addDoc(eventsRef, repeatedEvent);
+      date = new Date(date.setDate(date.getDate() + 1));
+    }
+  };
+  const createWeeklyEvent = async (event, eventsRef, repeatDays, repeatEnd) => {
+    let date = event.date;
+    while (date <= parseISO(repeatEnd)) {
+      if (repeatDays.includes(format(date, "eeee"))) {
+        const repeatedEvent = {
+          id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
           ...event,
-        });
+          date: date,
+          type: `weekly event (${repeatDays.join(", ")})`,
+        };
+        await addDoc(eventsRef, repeatedEvent);
       }
-    } catch (error) {
-      console.error("Error adding event: ", error);
-    } finally {
-      setEvents((prevEvents) => [...prevEvents, event]);
-      if (error) setError(null);
-      else setShow(false);
+      date = new Date(date.setDate(date.getDate() + 1));
+    }
+  };
+  const createMonthlyEvent = async (event, eventsRef, repeatEnd) => {
+    let date = event.date;
+    while (date <= parseISO(repeatEnd)) {
+      const repeatedEvent = {
+        id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
+        ...event,
+        date: date,
+        type: "monthly event",
+      };
+      await addDoc(eventsRef, repeatedEvent);
+      date = new Date(date.setMonth(date.getMonth() + 1));
+    }
+  };
+
+  // * function to handle saving the event when the save button is clicked
+  const handleEventSaveClick = async () => {
+    if (eventName.trim() === "") setValidEventName(false);
+    if (eventDate === "") setValidEventDate(false);
+    if (repeatOption !== "none" && repeatEnd === "") setValidEventEndDate(false);
+
+    if (validEventName && validEventDate && validEventEndDate) {
+      const event = {
+        color: eventColor,
+        name: eventName.trim(),
+        date: parseISO(eventDate),
+        time: eventTime,
+        description: eventDescription,
+        type: eventType,
+      };
+
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const eventsRef = collection(userRef, "events");
+        if (repeatOption !== "none") {
+          if (repeatOption === "daily") await createDailyEvent(event, eventsRef, repeatEnd);
+          else if (repeatOption === "weekly") await createWeeklyEvent(event, eventsRef, repeatDays, repeatEnd);
+          else if (repeatOption === "monthly") await createMonthlyEvent(event, eventsRef, repeatEnd);
+          else {
+            await addDoc(eventsRef, {
+              id: `${format(event.date, "yyyy-MM-dd")}: ${event.name}`,
+              ...event,
+            });
+          }
+        }
+      } catch (error) {
+        console.error("Error adding event: ", error);
+      } finally {
+        setEvents((prevEvents) => [...prevEvents, event]);
+        setShow(false);
+      }
     }
   };
 
   // * when day changes, show the popup and initialize the event
   useEffect(() => {
     if (eventAdd) {
+      // reset the event data
       setEventColor("blue");
       setEventName("");
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
-      setEventTime(eventAdd && eventAdd.time ? eventAdd.time : "");
+      setEventTime(eventAdd?.time ?? "");
       setEventDescription("");
       setRepeatDays([]);
       setRepeatOption("none");
       setRepeatEnd("");
-      setEventType(eventAdd && eventAdd.type ? eventAdd.type : "created");
+      setEventType(eventAdd?.type ?? "created");
+
+      // reset all the validation variables
+      setValidEventName(true);
+      setValidEventDate(true);
+      setValidEventEndDate(true);
+
+      // show the popup
       setShow(true);
     }
   }, [eventAdd]);
@@ -188,7 +175,6 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   useEffect(() => {
     if (!show) {
       setEventAdd(null);
-      setError(null);
     }
   }, [show, setEventAdd]);
 
@@ -215,9 +201,9 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 <label htmlFor="event" className="block text-gray-700 font-bold mb-2 text-lg">
                   Event
                 </label>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   {/* event color input */}
-                  <div className={`flex transition hover:scale-110 shadow-lg justify-center items-center w-7 h-7 bg-${eventColor}-200 rounded-full`}>
+                  <div className={`flex transition hover:scale-110 shadow-lg justify-center items-center w-8 h-8 bg-${eventColor}-200 rounded-full`}>
                     <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
                       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                       <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -241,7 +227,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                     value={eventName}
                     onChange={handleEventNameChange}
                     className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 ${
-                      error === "No event name" && "ring-2 ring-red-500"
+                      validEventName ? "" : "ring-2 ring-red-500"
                     }`}
                     placeholder="New Event Name"
                   />
@@ -260,7 +246,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 value={eventDate}
                 onChange={handleEventDateChange}
                 className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 ${
-                  error === "No date" && "ring-2 ring-red-500"
+                  validEventDate ? "" : "ring-2 ring-red-500"
                 }`}
                 placeholder="New Event Date"
               />
@@ -316,71 +302,26 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   <option value="monthly">Monthly</option>
                   <option value="yearly">Yearly</option>
                 </select>
-
+                {/* show the weekly repeat days if the repeat option is weekly */}
                 {repeatOption === "weekly" && (
                   <div>
                     <label className="block text-gray-700 font-bold mb-2 text-lg">Repeat on:</label>
                     <div className="flex gap-2">
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Sunday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Sunday")}
-                      >
-                        Sun
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Monday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Monday")}
-                      >
-                        Mon
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Tuesday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Tuesday")}
-                      >
-                        Tue
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Wednesday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Wednesday")}
-                      >
-                        Wed
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Thursday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Thursday")}
-                      >
-                        Thu
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Friday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Friday")}
-                      >
-                        Fri
-                      </button>
-                      <button
-                        className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
-                          repeatDays.includes("Saturday") && "bg-gray-800 border-none text-white font-bold"
-                        }`}
-                        onClick={() => handleRepeatDayToggle("Saturday")}
-                      >
-                        Sat
-                      </button>
+                      {["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"].map((day) => (
+                        <button
+                          key={day}
+                          className={`transition hover:scale-110 border border-gray-300 shadow-sm bg-gray-100 items-center justify-center rounded-full w-10 h-10 ${
+                            repeatDays.includes(day) && "bg-gray-800 border-none text-white font-bold"
+                          }`}
+                          onClick={() => handleRepeatDayToggle(day)}
+                        >
+                          {day.slice(0, 3)}
+                        </button>
+                      ))}
                     </div>
                   </div>
                 )}
-
+                {/* show the end date input if the event is repeating */}
                 {repeatOption !== "none" && (
                   <>
                     <div>
@@ -395,7 +336,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                         value={repeatEnd}
                         onChange={handleRepeatEndChange}
                         className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 ${
-                          error === "No repeat end date" && "ring-2 ring-red-500"
+                          validateEventEndDate ? "" : "ring-2 ring-red-500"
                         }`}
                         placeholder="Repeat end date"
                       />

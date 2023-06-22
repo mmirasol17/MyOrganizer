@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { format, isSameDay, set } from "date-fns";
+import { format, isSameDay, parseISO } from "date-fns";
 import { db, collection, doc, getDocs } from "../../firebase/FirebaseConfig";
 import Widget from "../ui/Widget";
 import CalendarHeader from "./CalendarHeader";
@@ -77,7 +77,13 @@ export default function CalendarWidget({ user }) {
               date: eventData.date.toDate(),
             };
           });
-          setEvents((prevEvents) => [...prevEvents, ...fetchedEvents]);
+          const uniqueEvents = fetchedEvents.filter((event, index, self) => index === self.findIndex((t) => t.id === event.id));
+          setEvents((prevEvents) => {
+            const filteredEvents = uniqueEvents.filter((event) => {
+              return !prevEvents.some((prevEvent) => prevEvent.id === event.id);
+            });
+            return [...prevEvents, ...filteredEvents];
+          });
         }
       } catch (error) {
         console.error("Error fetching events: ", error);
