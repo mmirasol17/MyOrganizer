@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 
 // for Firebase authentication and database
@@ -22,11 +22,6 @@ export default function SignupPage({ user }) {
   // * variables needed for toggling password visibility
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
-
-  // * redirect to dashboard if user is logged in
-  if (user) {
-    window.location.href = "/dashboard";
-  }
 
   // * functions to handle variable state changes via user input
   const handleUsernameChange = (e) => {
@@ -70,51 +65,70 @@ export default function SignupPage({ user }) {
     setConfirmPasswordVisible(!confirmPasswordVisible);
   };
 
+  // * create a new user account in Firebase
+  const createAccount = async () => {
+    let newUser = null;
+    // create the user account in Firebase auth
+    try {
+      newUser = await createUserWithEmailAndPassword(auth, email, password);
+    } catch (error) {
+      if (error.code === "auth/email-already-in-use") {
+        setSignupError("An account with this email already exists.");
+        setValidEmail(false);
+      } else if (error.code === "auth/invalid-email") {
+        setSignupError("This email does not exist.");
+        setValidEmail(false);
+      } else if (error.code === "auth/weak-password") {
+        setSignupError("Your password is too weak.");
+        setValidPassword(false);
+      } else {
+        setSignupError("There was an issue with creating your account.");
+      }
+    }
+    // store the user's username and email in the database
+    try {
+      const userRef = doc(db, "users", newUser.user.uid);
+      await setDoc(userRef, {
+        username: username,
+        email: email,
+      });
+    } catch (error) {
+      if (error.code === "firestore/permission-denied") {
+        setSignupError("There was an issue with storing your account info.");
+      } else {
+        setSignupError("There was an issue with creating your account.");
+      }
+    } finally {
+      window.location.href = "/dashboard";
+    }
+  };
+
   // * function called when user submits the signup form
-  const handleSignup = async (e) => {
+  const handleSignup = (e) => {
     e.preventDefault();
+    // make sure all input fields are valid
     if (username === "" || email === "" || password === "" || confirmPassword === "") {
       setSignupError("Please fill out all the fields.");
       if (username === "") setValidUsername(false);
       if (email === "") setValidEmail(false);
       if (password === "") setValidPassword(false);
       if (confirmPassword === "") setValidConfirmPassword(false);
-    } else {
+    }
+    // create the account if all input fields are valid
+    else {
       setSignupError("");
       if (validUsername && validEmail && validPassword && validConfirmPassword) {
-        let user = null;
-        try {
-          user = await createUserWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-          if (error.code === "auth/email-already-in-use") {
-            setSignupError("An account with this email already exists.");
-            setValidEmail(false);
-          } else if (error.code === "auth/invalid-email") {
-            setSignupError("This email does not exist.");
-            setValidEmail(false);
-          } else if (error.code === "auth/weak-password") {
-            setSignupError("Your password is too weak.");
-            setValidPassword(false);
-          } else {
-            setSignupError("There was an issue with creating your account.");
-          }
-        }
-        try {
-          await setDoc(doc(db, "users", user.user.uid), {
-            username: username,
-            email: email,
-          });
-          window.location.href = "/dashboard";
-        } catch (error) {
-          if (error.code === "firestore/permission-denied") {
-            setSignupError("There was an issue with storing your account info.");
-          } else {
-            setSignupError("There was an issue with creating your account.");
-          }
-        }
+        createAccount();
       }
     }
   };
+
+  // * if this page is accessed while logged in, redirect to the dashboard
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/dashboard";
+    }
+  }, []);
 
   // * the signup page UI
   return (

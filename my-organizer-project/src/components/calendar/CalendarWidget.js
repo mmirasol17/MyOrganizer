@@ -41,7 +41,8 @@ export default function CalendarWidget({ user }) {
             name: holiday.name,
             date: new Date(holiday.date),
             type: "holiday",
-            time: "all-day",
+            startTime: "",
+            endTime: "",
             color: "red",
           }));
           const uniqueHolidays = formattedHolidays.filter((holiday, index, self) => index === self.findIndex((t) => t.name === holiday.name));

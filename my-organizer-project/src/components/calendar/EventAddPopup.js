@@ -10,7 +10,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   const [eventColor, setEventColor] = useState("blue");
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
-  const [eventTime, setEventTime] = useState("");
+  const [eventStartTime, setEventStartTime] = useState("");
+  const [eventEndTime, setEventEndTime] = useState("");
   const [eventDescription, setEventDescription] = useState("");
   const [eventType, setEventType] = useState("created");
 
@@ -18,6 +19,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   const [validEventName, setValidEventName] = useState(true);
   const [validEventDate, setValidEventDate] = useState(true);
   const [validEventEndDate, setValidEventEndDate] = useState(true);
+  const [validEventStartTime, setValidEventStartTime] = useState(true);
+  const [validEventEndTime, setValidEventEndTime] = useState(true);
 
   // * repeat event data
   const [repeatDays, setRepeatDays] = useState([]);
@@ -33,8 +36,11 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     setEventDate(e.target.value);
     setValidEventDate(validateEventDate(e));
   };
-  const handleEventTimeChange = (e) => {
-    setEventTime(e.target.value);
+  const handleEventStartTimeChange = (e) => {
+    setEventStartTime(e.target.value);
+  };
+  const handleEventEndTimeChange = (e) => {
+    setEventEndTime(e.target.value);
   };
   const handleEventDescriptionChange = (e) => {
     setEventDescription(e.target.value);
@@ -110,16 +116,39 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
 
   // * function to handle saving the event when the save button is clicked
   const handleEventSaveClick = async () => {
-    if (eventName.trim() === "") setValidEventName(false);
-    if (eventDate === "") setValidEventDate(false);
-    if (repeatOption !== "none" && repeatEnd === "") setValidEventEndDate(false);
+    if (eventName.trim() === "") {
+      setValidEventName(false);
+      return;
+    }
+    if (eventDate === "") {
+      setValidEventDate(false);
+      return;
+    }
+    if (eventStartTime === "" && eventEndTime !== "") {
+      setValidEventStartTime(false);
+      return;
+    }
+    if (eventEndTime === "" && eventStartTime !== "") {
+      setValidEventEndTime(false);
+      return;
+    }
+    if (eventStartTime >= eventEndTime) {
+      setValidEventStartTime(false);
+      setValidEventEndTime(false);
+      return;
+    }
+    if (repeatOption !== "none" && repeatEnd === "") {
+      setValidEventEndDate(false);
+      return;
+    }
 
-    if (validEventName && validEventDate && validEventEndDate) {
+    if (validEventName && validEventDate && validEventEndDate && validEventStartTime && validEventEndTime) {
       const event = {
         color: eventColor,
         name: eventName.trim(),
         date: parseISO(eventDate),
-        time: eventTime,
+        startTime: eventStartTime,
+        endTime: eventEndTime,
         description: eventDescription,
         type: eventType,
       };
@@ -154,7 +183,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
       setEventColor("blue");
       setEventName("");
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
-      setEventTime(eventAdd?.time ?? "");
+      setEventStartTime(eventAdd?.time ?? "");
+      setEventEndTime(eventAdd?.time ?? "");
       setEventDescription("");
       setRepeatDays([]);
       setRepeatOption("none");
@@ -251,20 +281,38 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 placeholder="New Event Date"
               />
             </div>
-            {/* event time input */}
-            <div className="mb-4 flex flex-col">
-              <label htmlFor="time" className="block text-gray-700 font-bold mb-2 text-lg">
-                Time
-              </label>
-              <input
-                type="time"
-                name="time"
-                id="time"
-                value={eventTime}
-                onChange={handleEventTimeChange}
-                className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
-                placeholder="New Event Time"
-              />
+            <div className="flex gap-2">
+              {/* event start time input */}
+              <div className="mb-4 flex flex-col w-1/2">
+                <label htmlFor="time" className="block text-gray-700 font-bold mb-2 text-lg">
+                  Starts
+                </label>
+                <input
+                  type="time"
+                  name="start_time"
+                  id="start_time"
+                  value={eventStartTime}
+                  onChange={handleEventStartTimeChange}
+                  className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  placeholder="Start Time"
+                />
+              </div>
+
+              {/* event end time input */}
+              <div className="mb-4 flex flex-col w-1/2">
+                <label htmlFor="time" className="block text-gray-700 font-bold mb-2 text-lg">
+                  Ends
+                </label>
+                <input
+                  type="time"
+                  name="end_time"
+                  id="end_time"
+                  value={eventEndTime}
+                  onChange={handleEventEndTimeChange}
+                  className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  placeholder="End Time"
+                />
+              </div>
             </div>
             {/* event description input */}
             <div className="mb-4 flex flex-col">

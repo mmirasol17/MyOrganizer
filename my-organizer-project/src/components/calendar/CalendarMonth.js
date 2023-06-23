@@ -1,5 +1,6 @@
 import React from "react";
 import { format, startOfMonth, endOfMonth, startOfWeek, isToday, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
+import { convertToRegularTime, shortenTime } from "./CalendarUtils";
 
 export default function CalendarMonth({
   currentDate,
@@ -111,11 +112,11 @@ export default function CalendarMonth({
                           handleEventClick(event);
                         }}
                       >
-                        {event.time !== "" && event.time !== "all-day" && (
-                          <div>
-                            {event.time.replace(/^0/, "").toLowerCase()}
-                            {event.time.slice(-2) === ":00" ? "" : ` |`}&nbsp;
-                          </div>
+                        {event.startTime !== "" && event.endTime !== "" && event.startTime !== "all-day" && event.endTime && (
+                          <>
+                            <div>{shortenTime(convertToRegularTime(event.startTime))}</div>-<div>{shortenTime(convertToRegularTime(event.endTime))}</div>
+                            &nbsp;
+                          </>
                         )}
 
                         <div className="font-bold">{event.name}</div>

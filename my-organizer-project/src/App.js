@@ -17,20 +17,20 @@ function App() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // * set the user when the Firebase authentication state changes
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
         setUser(user);
       } else {
-        console.log("User is logged out" + user);
         setUser(null);
       }
-      setIsLoading(false); // Set isLoading to false when authentication is complete
+      setIsLoading(false);
     });
-
     return () => unsubscribe();
   }, []);
 
+  // * the root page UI of MyOrganizer
   return (
     <Router>
       <div className="min-h-screen">
@@ -45,21 +45,21 @@ function App() {
         ) : (
           // Render content after authentication is complete
           <Routes>
-            {/* default route -> dashboard if logged in, is -> home if not */}
+            {/* default route is dashboard (logged in) / home page (not logged in) */}
             {user ? (
               <Route key="default-authenticated" path="/" element={<DashboardPage user={user} />} />
             ) : (
               <Route key="default-unauthenticated" path="/" element={<HomePage />} />
             )}
 
-            {/* dashboard route shows the page if logged in, show login page if not */}
+            {/* dashboard route is dashboard (logged in) / login page (not logged in) */}
             {user ? (
               <Route key="dashboard-authenticated" path="/dashboard" element={<DashboardPage user={user} />} />
             ) : (
               <Route key="dashboard-unauthenticated" path="/dashboard" element={<LoginPage user={user} />} />
             )}
 
-            {/* other routesthat  won't change */}
+            {/* other routes that  won't change */}
             <Route key="login" path="/login" element={<LoginPage user={user} />} />
             <Route key="signup" path="/signup" element={<SignupPage user={user} />} />
             <Route key="not-found" path="*" element={<NotFoundPage />} />

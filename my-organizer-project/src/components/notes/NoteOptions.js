@@ -1,7 +1,7 @@
 import React from "react";
 import { db, doc, collection, updateDoc, deleteDoc } from "../../firebase/FirebaseConfig";
 
-export default function NoteOptions({ user, note, pinned, setNotes, setNoteEdit }) {
+export default function NoteOptions({ user, note, setNotes, setNoteEdit }) {
   // * pin a note
   const pinNote = async (note) => {
     if (!note.pinned) {

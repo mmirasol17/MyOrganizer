@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { format } from "date-fns";
 import Popup from "../ui/Popup";
+import { convertToRegularTime } from "./CalendarUtils";
 
 export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEdit }) {
   const [show, setShow] = useState(false);
@@ -58,7 +59,7 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
                 <p className="text-gray-700 text-md ml-8">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</p>
               </div>
               {/* the time of the event */}
-              {selectedEvent.time && selectedEvent.time !== "" && (
+              {selectedEvent.startTime && selectedEvent.startTime !== "" && selectedEvent.endTime && selectedEvent.endTime !== "" && (
                 <div className="flex items-center gap-2">
                   <svg className="w-6 h-6" fill="#000000" viewBox="0 0 32 32" version="1.1" xmlns="http://www.w3.org/2000/svg">
                     <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -68,7 +69,9 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
                       <path d="M0 16q0-3.232 1.28-6.208t3.392-5.12 5.12-3.392 6.208-1.28q3.264 0 6.24 1.28t5.088 3.392 3.392 5.12 1.28 6.208q0 3.264-1.28 6.208t-3.392 5.12-5.12 3.424-6.208 1.248-6.208-1.248-5.12-3.424-3.392-5.12-1.28-6.208zM4 16q0 3.264 1.6 6.048t4.384 4.352 6.016 1.6 6.016-1.6 4.384-4.352 1.6-6.048-1.6-6.016-4.384-4.352-6.016-1.632-6.016 1.632-4.384 4.352-1.6 6.016zM14.016 16v-5.984q0-0.832 0.576-1.408t1.408-0.608 1.408 0.608 0.608 1.408v4h4q0.8 0 1.408 0.576t0.576 1.408-0.576 1.44-1.408 0.576h-6.016q-0.832 0-1.408-0.576t-0.576-1.44z"></path>
                     </g>
                   </svg>
-                  <p className="text-gray-700 text-md">{selectedEvent.time}</p>
+                  <p className="text-gray-700 text-md">
+                    {convertToRegularTime(selectedEvent.startTime)} - {convertToRegularTime(selectedEvent.endTime)}
+                  </p>
                 </div>
               )}
               {/* the event description */}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { auth, signInWithEmailAndPassword } from "../firebase/FirebaseConfig";
 import Footer from "../components/ui/Footer";
@@ -11,11 +11,6 @@ export default function LoginPage({ user }) {
 
   // * variable needed for error handling
   const [error, setError] = useState("");
-
-  // * redirect to dashboard if user is logged in
-  if (user) {
-    window.location.href = "/dashboard";
-  }
 
   // * function for handling password visibility toggle changes
   const togglePasswordVisibility = () => {
@@ -38,6 +33,13 @@ export default function LoginPage({ user }) {
         setError("Invalid email or password."); // Set error message
       });
   };
+
+  // * if this page is accessed while logged in, redirect to the dashboard page
+  useEffect(() => {
+    if (user) {
+      window.location.href = "/dashboard";
+    }
+  }, []);
 
   // * login page ui
   return (
