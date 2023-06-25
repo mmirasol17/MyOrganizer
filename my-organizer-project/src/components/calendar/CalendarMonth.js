@@ -59,6 +59,7 @@ export default function CalendarMonth({
           </button>
         </div>
 
+        {/* day labels */}
         <div className="grid grid-cols-7">
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayOfWeek) => (
             <div key={dayOfWeek} className="p-1 text-center font-bold">
@@ -67,6 +68,7 @@ export default function CalendarMonth({
           ))}
         </div>
 
+        {/* grid of all month days */}
         <div className="grid grid-cols-7 border-[0.5px] border-gray-300">
           {days.map((day) => {
             const dayEvents = getEventsForDay(day);
@@ -76,7 +78,7 @@ export default function CalendarMonth({
             return (
               <div
                 key={day.toString()}
-                className={`p-0.5 cursor-pointer text-center border-[0.5px] border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${
+                className={`p-0.5 hover:bg-gray-100 cursor-pointer text-center border-[0.5px] border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${
                   isSelectedDay ? "bg-blue-200" : ""
                 }`}
                 style={{
@@ -100,6 +102,7 @@ export default function CalendarMonth({
                   </div>
                 </div>
 
+                {/* events */}
                 {dayEvents.map((event, index) => {
                   // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
                   if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {

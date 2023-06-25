@@ -17,6 +17,11 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
     setShow(false);
   };
 
+  const handleEventDeleteClick = (e) => {
+    setEventEdit(selectedEvent);
+    setShow(false);
+  };
+
   // * when event changes in parent component, show the popup
   useEffect(() => {
     if (selectedEvent) {
@@ -78,8 +83,8 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
               {selectedEvent.description && selectedEvent.description !== "" && (
                 <div className="flex items-center gap-2">
                   <svg className="w-6 h-6" fill="#000000" viewBox="2 2 20 20" xmlns="http://www.w3.org/2000/svg">
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                     <g id="SVGRepo_iconCarrier">
                       <path d="M21,7H3V4A1,1,0,0,1,4,3H20a1,1,0,0,1,1,1ZM3,20V9H21V20a1,1,0,0,1-1,1H4A1,1,0,0,1,3,20Zm3-6H18V12H6Zm0,4h6V16H6Z"></path>
                     </g>
@@ -101,36 +106,63 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
             </div>
           </div>
           {/* popup footer */}
-          <div className="bg-gray-100 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-            {selectedEvent.type !== "holiday" && (
+          <div className="bg-gray-100 px-4 py-3 sm:px-6 sm:flex justify-between">
+            <div>
               <button
-                onClick={handleEventEditClick}
+                onClick={handleEventDeleteClick}
                 type="button"
-                className="w-full inline-flex items-center gap-2 justify-center rounded-md border border-transparent shadow-sm pl-4 pr-3 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm"
+                className="w-full inline-flex items-center gap-1.5 justify-center rounded-md border border-transparent shadow-sm pl-4 pr-3 py-2 bg-red-500 text-base font-medium text-white hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:w-auto sm:text-sm"
               >
-                Edit
-                <svg className="w-3 h-3 fill-white" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
+                Delete
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                   <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
                   <g id="SVGRepo_iconCarrier">
-                    <g>
+                    <g id="Interface / Trash_Full">
                       <path
-                        className="st0"
-                        d="M494.56,55.774l-38.344-38.328c-23.253-23.262-60.965-23.253-84.226,0l-35.878,35.878l122.563,122.563 l35.886-35.878C517.814,116.747,517.814,79.044,494.56,55.774z"
+                        id="Vector"
+                        d="M14 10V17M10 10V17M6 6V17.8C6 18.9201 6 19.4798 6.21799 19.9076C6.40973 20.2839 6.71547 20.5905 7.0918 20.7822C7.5192 21 8.07899 21 9.19691 21H14.8031C15.921 21 16.48 21 16.9074 20.7822C17.2837 20.5905 17.5905 20.2839 17.7822 19.9076C18 19.4802 18 18.921 18 17.8031V6M6 6H8M6 6H4M8 6H16M8 6C8 5.06812 8 4.60241 8.15224 4.23486C8.35523 3.74481 8.74432 3.35523 9.23438 3.15224C9.60192 3 10.0681 3 11 3H13C13.9319 3 14.3978 3 14.7654 3.15224C15.2554 3.35523 15.6447 3.74481 15.8477 4.23486C15.9999 4.6024 16 5.06812 16 6M16 6H18M18 6H20"
+                        stroke="#ffffff"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
                       ></path>
-                      <polygon className="st0" points="0,389.435 0,511.998 122.571,511.998 425.246,209.314 302.691,86.751 "></polygon>
                     </g>
                   </g>
                 </svg>
               </button>
-            )}
-            <button
-              onClick={handleEventPopupClose}
-              type="button"
-              className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
-            >
-              Close
-            </button>
+            </div>
+            <div>
+              <button
+                onClick={handleEventPopupClose}
+                type="button"
+                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+              >
+                Close
+              </button>
+              {selectedEvent.type !== "holiday" && (
+                <button
+                  onClick={handleEventEditClick}
+                  type="button"
+                  className="w-full inline-flex items-center gap-2 justify-center rounded-md border border-transparent shadow-sm pl-4 pr-3 py-2 bg-gray-800 text-base font-medium text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:ml-3 sm:w-auto sm:text-sm"
+                >
+                  Edit
+                  <svg className="w-3 h-3 fill-white" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <g>
+                        <path
+                          className="st0"
+                          d="M494.56,55.774l-38.344-38.328c-23.253-23.262-60.965-23.253-84.226,0l-35.878,35.878l122.563,122.563 l35.886-35.878C517.814,116.747,517.814,79.044,494.56,55.774z"
+                        ></path>
+                        <polygon className="st0" points="0,389.435 0,511.998 122.571,511.998 425.246,209.314 302.691,86.751 "></polygon>
+                      </g>
+                    </g>
+                  </svg>
+                </button>
+              )}
+            </div>
           </div>
         </Popup>
       )}

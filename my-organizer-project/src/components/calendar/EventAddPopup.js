@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { format, parseISO, set } from "date-fns";
+import { format, parseISO, getDate, addMonths, setDate, addDays } from "date-fns";
 import { db, collection, addDoc, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 
@@ -38,9 +38,11 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   };
   const handleEventStartTimeChange = (e) => {
     setEventStartTime(e.target.value);
+    setValidEventStartTime(validateEventStartTime(e));
   };
   const handleEventEndTimeChange = (e) => {
     setEventEndTime(e.target.value);
+    setValidEventEndTime(validateEventEndTime(e));
   };
   const handleEventDescriptionChange = (e) => {
     setEventDescription(e.target.value);
@@ -70,52 +72,60 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   const validateEventEndDate = (e) => {
     return e.target.value.length > 0;
   };
+  const validateEventStartTime = (e) => {
+    return e.target.value.length > 0;
+  };
+  const validateEventEndTime = (e) => {
+    return e.target.value.length > 0;
+  };
 
-  // * functions to create repeated events, whether daily, weekly, or monthly
-  const createDailyEvent = async (event, eventsRef, repeatEnd) => {
-    let date = event.date;
-    while (date <= parseISO(repeatEnd)) {
-      const repeatedEvent = {
-        id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
+  // * function to create a single event
+  const createEvent = async (event, eventsRef) => {
+    try {
+      await addDoc(eventsRef, {
+        id: `${format(event.date, "yyyy-MM-dd")}: ${event.name}`,
         ...event,
-        date: date,
-        type: "daily event",
-      };
-      await addDoc(eventsRef, repeatedEvent);
-      date = new Date(date.setDate(date.getDate() + 1));
+      });
+      setEvents((prevEvents) => [...prevEvents, event]);
+    } catch (error) {
+      console.error("Error adding event: ", error);
     }
   };
-  const createWeeklyEvent = async (event, eventsRef, repeatDays, repeatEnd) => {
+
+  // * function to create repeated events, whether daily, weekly, or monthly
+  const createRepeatedEvents = async (event, eventsRef, repeatEnd, repeatDays) => {
     let date = event.date;
-    while (date <= parseISO(repeatEnd)) {
-      if (repeatDays.includes(format(date, "eeee"))) {
+
+    const endDate = parseISO(repeatEnd);
+    while (date <= endDate) {
+      console.log("date: ", date);
+      console.log("time: ", event.startTime + " - " + event.endTime);
+      if (
+        repeatDays?.includes(format(date, "eeee")) || // For weekly events
+        !repeatDays // For daily and monthly events
+      ) {
         const repeatedEvent = {
           id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
           ...event,
-          date: date,
-          type: `weekly event (${repeatDays.join(", ")})`,
+          date: parseISO(date), // Use the updated date
+          type: repeatDays ? `weekly event (${repeatDays.join(", ")})` : `${event.repeatOption} event`,
         };
-        await addDoc(eventsRef, repeatedEvent);
+        await createEvent(repeatedEvent, eventsRef);
       }
-      date = new Date(date.setDate(date.getDate() + 1));
-    }
-  };
-  const createMonthlyEvent = async (event, eventsRef, repeatEnd) => {
-    let date = event.date;
-    while (date <= parseISO(repeatEnd)) {
-      const repeatedEvent = {
-        id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
-        ...event,
-        date: date,
-        type: "monthly event",
-      };
-      await addDoc(eventsRef, repeatedEvent);
-      date = new Date(date.setMonth(date.getMonth() + 1));
+      // Increment the date based on the repeat option
+      if (event.repeatOption === "daily") {
+        date = parseISO(addDays(date, 1));
+      } else if (event.repeatOption === "weekly") {
+        date = parseISO(addDays(date, 7));
+      } else if (event.repeatOption === "monthly") {
+        date = addMonths(date, 1);
+      }
     }
   };
 
   // * function to handle saving the event when the save button is clicked
-  const handleEventSaveClick = async () => {
+  const handleEventSaveClick = () => {
+    // check for any input errors
     if (eventName.trim() === "") {
       setValidEventName(false);
       return;
@@ -132,7 +142,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
       setValidEventEndTime(false);
       return;
     }
-    if (eventStartTime >= eventEndTime) {
+    if (eventStartTime !== "" && eventEndTime !== "" && eventStartTime >= eventEndTime) {
       setValidEventStartTime(false);
       setValidEventEndTime(false);
       return;
@@ -143,6 +153,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     }
 
     if (validEventName && validEventDate && validEventEndDate && validEventStartTime && validEventEndTime) {
+      // create the new event if there are no errors
       const event = {
         color: eventColor,
         name: eventName.trim(),
@@ -151,22 +162,16 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
         endTime: eventEndTime,
         description: eventDescription,
         type: eventType,
+        repeatOption: repeatOption,
       };
-
       try {
         const userRef = doc(db, "users", user.uid);
         const eventsRef = collection(userRef, "events");
-        if (repeatOption !== "none") {
-          if (repeatOption === "daily") await createDailyEvent(event, eventsRef, repeatEnd);
-          else if (repeatOption === "weekly") await createWeeklyEvent(event, eventsRef, repeatDays, repeatEnd);
-          else if (repeatOption === "monthly") await createMonthlyEvent(event, eventsRef, repeatEnd);
-          else {
-            await addDoc(eventsRef, {
-              id: `${format(event.date, "yyyy-MM-dd")}: ${event.name}`,
-              ...event,
-            });
-          }
-        }
+
+        // If the event is repeating, create the repeated events
+        if (repeatOption !== "none") createRepeatedEvents(event, eventsRef, repeatEnd, repeatDays);
+        // Otherwise, just add the single event to Firestore
+        else createEvent(event, eventsRef);
       } catch (error) {
         console.error("Error adding event: ", error);
       } finally {
@@ -183,8 +188,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
       setEventColor("blue");
       setEventName("");
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
-      setEventStartTime(eventAdd?.time ?? "");
-      setEventEndTime(eventAdd?.time ?? "");
+      setEventStartTime(eventAdd?.startTime ?? "");
+      setEventEndTime(eventAdd?.endTime ?? "");
       setEventDescription("");
       setRepeatDays([]);
       setRepeatOption("none");
@@ -195,6 +200,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
       setValidEventName(true);
       setValidEventDate(true);
       setValidEventEndDate(true);
+      setValidEventStartTime(true);
+      setValidEventEndTime(true);
 
       // show the popup
       setShow(true);
@@ -293,7 +300,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   id="start_time"
                   value={eventStartTime}
                   onChange={handleEventStartTimeChange}
-                  className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500
+                  ${validEventStartTime ? "" : "ring-2 ring-red-500"}`}
                   placeholder="Start Time"
                 />
               </div>
@@ -309,7 +317,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   id="end_time"
                   value={eventEndTime}
                   onChange={handleEventEndTimeChange}
-                  className="border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500"
+                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500
+                  ${validEventEndTime ? "" : "ring-2 ring-red-500"}`}
                   placeholder="End Time"
                 />
               </div>
