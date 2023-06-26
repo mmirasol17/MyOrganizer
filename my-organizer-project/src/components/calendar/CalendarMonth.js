@@ -37,6 +37,7 @@ export default function CalendarMonth({
   return (
     <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
       <div className="flex flex-col">
+        {/* month and year header indicator */}
         <div className="flex items-center pb-1 justify-center">
           <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handlePrevMonth}>
             <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -74,7 +75,6 @@ export default function CalendarMonth({
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
-
             return (
               <div
                 key={day.toString()}

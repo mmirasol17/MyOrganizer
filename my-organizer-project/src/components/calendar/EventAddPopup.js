@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { format, parseISO, getDate, addMonths, setDate, addDays } from "date-fns";
-import { db, collection, addDoc, doc } from "../../firebase/FirebaseConfig";
+import { format, parseISO, addDays, addMonths, addYears } from "date-fns";
+import { db, collection, writeBatch, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 
 export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }) {
@@ -48,11 +48,15 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     setEventDescription(e.target.value);
   };
   const handleRepeatDayToggle = (day) => {
-    if (repeatDays.includes(day)) setRepeatDays((prevDays) => prevDays.filter((d) => d !== day));
-    else setRepeatDays((prevDays) => [...prevDays, day]);
+    if (repeatDays.includes(day)) {
+      setRepeatDays((prevRepeatDays) => prevRepeatDays.filter((repeatDay) => repeatDay !== day));
+    } else {
+      setRepeatDays((prevRepeatDays) => [...prevRepeatDays, day]);
+    }
   };
   const handleRepeatOptionChange = (e) => {
     setRepeatOption(e.target.value);
+    if (e.target.value === "weekly") setRepeatDays([format(parseISO(eventDate), "eeee")]);
   };
   const handleRepeatEndChange = (e) => {
     setRepeatEnd(e.target.value);
@@ -79,52 +83,59 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     return e.target.value.length > 0;
   };
 
-  // * function to create a single event
-  const createEvent = async (event, eventsRef) => {
+  // * function to save events to Firestore and update the events state
+  const saveEvents = async (events) => {
     try {
-      await addDoc(eventsRef, {
-        id: `${format(event.date, "yyyy-MM-dd")}: ${event.name}`,
-        ...event,
+      const userRef = doc(db, "users", user.uid);
+      const eventsRef = collection(userRef, "events");
+      const batch = writeBatch(db);
+      events.forEach((event) => {
+        const eventRef = doc(eventsRef);
+        batch.set(eventRef, event);
       });
-      setEvents((prevEvents) => [...prevEvents, event]);
+      await batch.commit();
     } catch (error) {
-      console.error("Error adding event: ", error);
+      console.error("Error saving events: ", error);
     }
   };
 
-  // * function to create repeated events, whether daily, weekly, or monthly
-  const createRepeatedEvents = async (event, eventsRef, repeatEnd, repeatDays) => {
+  // * function to create repeated events and single events
+  const createEvents = (event, repeatEnd, repeatDays) => {
+    const events = [];
     let date = event.date;
-
     const endDate = parseISO(repeatEnd);
     while (date <= endDate) {
-      console.log("date: ", date);
-      console.log("time: ", event.startTime + " - " + event.endTime);
       if (
-        repeatDays?.includes(format(date, "eeee")) || // For weekly events
-        !repeatDays // For daily and monthly events
+        (repeatDays.length > 0 && repeatDays.includes(format(date, "eeee"))) || // For weekly events
+        repeatDays.length === 0 // For daily and monthly events
       ) {
-        const repeatedEvent = {
-          id: `${format(date, "yyyy-MM-dd")}: ${event.name}`,
+        const createdEvent = {
           ...event,
-          date: parseISO(date), // Use the updated date
-          type: repeatDays ? `weekly event (${repeatDays.join(", ")})` : `${event.repeatOption} event`,
+          date,
+          type: repeatDays.length > 0 ? `weekly event (${repeatDays.join(", ")})` : `${event.repeatOption} event`,
         };
-        await createEvent(repeatedEvent, eventsRef);
+        events.push(createdEvent);
       }
       // Increment the date based on the repeat option
       if (event.repeatOption === "daily") {
-        date = parseISO(addDays(date, 1));
+        date = addDays(date, 1);
       } else if (event.repeatOption === "weekly") {
-        date = parseISO(addDays(date, 7));
+        date = addDays(date, 1);
       } else if (event.repeatOption === "monthly") {
         date = addMonths(date, 1);
+      } else if (event.repeatOption === "yearly") {
+        date = addYears(date, 1);
       }
     }
+    // Add the original event if it's not repeating
+    if (event.repeatOption === "none") {
+      events.push(event);
+    }
+    return events;
   };
 
   // * function to handle saving the event when the save button is clicked
-  const handleEventSaveClick = () => {
+  const handleEventSaveClick = async () => {
     // check for any input errors
     if (eventName.trim() === "") {
       setValidEventName(false);
@@ -164,18 +175,16 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
         type: eventType,
         repeatOption: repeatOption,
       };
+      // create the event(s) and save them to Firestore
       try {
-        const userRef = doc(db, "users", user.uid);
-        const eventsRef = collection(userRef, "events");
-
-        // If the event is repeating, create the repeated events
-        if (repeatOption !== "none") createRepeatedEvents(event, eventsRef, repeatEnd, repeatDays);
-        // Otherwise, just add the single event to Firestore
-        else createEvent(event, eventsRef);
+        const events = createEvents(event, repeatEnd, repeatDays);
+        await saveEvents(events);
+        setEvents((prevEvents) => [...prevEvents, ...events]);
       } catch (error) {
+        // log any errors caught by creating or saving the events
         console.error("Error adding event: ", error);
       } finally {
-        setEvents((prevEvents) => [...prevEvents, event]);
+        // close the popup once the event(s) are saved
         setShow(false);
       }
     }

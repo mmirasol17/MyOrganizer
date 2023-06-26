@@ -2,7 +2,7 @@
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
-import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, getDocs, deleteDoc } from "firebase/firestore";
+import { getFirestore, collection, doc, addDoc, getDoc, setDoc, updateDoc, getDocs, deleteDoc, writeBatch } from "firebase/firestore";
 
 // https://firebase.google.com/docs/web/setup#available-libraries
 
@@ -27,4 +27,4 @@ const analytics = getAnalytics(app);
 // Export the auth objs and functions
 export { auth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut };
 // Export the db objs and functions
-export { db, collection, doc, addDoc, getDoc, setDoc, updateDoc, getDocs, deleteDoc };
+export { db, collection, doc, addDoc, getDoc, setDoc, updateDoc, getDocs, deleteDoc, writeBatch };
