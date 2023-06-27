@@ -71,13 +71,14 @@ export default function CalendarMonth({
 
         {/* grid of all month days */}
         <div className="grid grid-cols-7 border-[0.5px] border-gray-300">
-          {days.map((day) => {
+          {days.map((day, index) => {
+            // Add index as the second argument
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
             return (
               <div
-                key={day.toString()}
+                key={`${day.toString()}-${index}`} // Assign a unique key using the date and index
                 className={`p-0.5 hover:bg-gray-100 cursor-pointer text-center border-[0.5px] border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${
                   isSelectedDay ? "bg-blue-200" : ""
                 }`}
@@ -131,7 +132,7 @@ export default function CalendarMonth({
                     return (
                       <div
                         className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center hover:bg-gray-200 text-xs/3 px-0.5 mb-0.5"
-                        key={day.toString()}
+                        key={dayEvents.length}
                         onClick={(e) => {
                           e.stopPropagation();
                         }}

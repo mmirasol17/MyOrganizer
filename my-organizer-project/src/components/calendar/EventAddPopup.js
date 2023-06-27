@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { format, parseISO, addDays, addMonths, addYears } from "date-fns";
 import { db, collection, writeBatch, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
+import { eventColors } from "./EventColors";
 
 export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }) {
   const [show, setShow] = useState(false);
+  const [showColorMenu, setShowColorMenu] = useState(false);
+  const colorMenuRef = useRef(null);
 
   // * event data that will be saved to Firestore
-  const [eventColor, setEventColor] = useState("blue");
+  const [eventColor, setEventColor] = useState(eventColors["blue"]);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventStartTime, setEventStartTime] = useState("");
@@ -28,6 +31,9 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   const [repeatOption, setRepeatOption] = useState("none");
 
   // * functions to handle state changes
+  const handleEventColorChange = (color) => {
+    setEventColor(color);
+  };
   const handleEventNameChange = (e) => {
     setEventName(e.target.value);
     setValidEventName(validateEventName(e));
@@ -220,9 +226,23 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   // * when popup closes, set the event to null
   useEffect(() => {
     if (!show) {
+      setShowColorMenu(false);
       setEventAdd(null);
     }
   }, [show, setEventAdd]);
+
+  // * when outside of the color menu is clicked, close the color menu
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (colorMenuRef.current && !colorMenuRef.current.contains(e.target)) {
+        setShowColorMenu(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [colorMenuRef]);
 
   // * the popup ui
   return (
@@ -249,7 +269,11 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 </label>
                 <div className="flex items-center gap-1.5">
                   {/* event color input */}
-                  <div className={`flex transition hover:scale-110 shadow-lg justify-center items-center w-8 h-8 bg-${eventColor}-200 rounded-full`}>
+                  <div
+                    className={`flex transition hover:scale-110 shadow-lg justify-center items-center w-11 h-10 rounded-full`}
+                    onClick={() => setShowColorMenu(!showColorMenu)}
+                    style={{ backgroundColor: eventColors[eventColor] }}
+                  >
                     <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
                       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                       <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
@@ -265,6 +289,27 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                       </g>
                     </svg>
                   </div>
+                  {showColorMenu && (
+                    <div
+                      ref={colorMenuRef}
+                      className="absolute top-36 w-52 left-0 ml-4 mt-4 py-2 justify-center bg-white border border-gray-300 rounded-xl shadow-lg z-10 flex flex-wrap"
+                    >
+                      {Object.keys(eventColors).map((color) => (
+                        <div
+                          key={color}
+                          className={`flex items-center gap-1.5 px-4 py-2 cursor-pointer hover:bg-gray-100`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEventColorChange(color);
+                            setShowColorMenu(false);
+                          }}
+                        >
+                          <div className={`w-6 h-6 rounded-full`} style={{ backgroundColor: eventColors[color] }}></div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {/* event name input */}
                   <input
                     type="text"

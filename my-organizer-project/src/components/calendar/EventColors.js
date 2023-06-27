@@ -1,0 +1,17 @@
+export const eventColors = {
+  orange: "#FBD38D",
+  teal: "#9AE1D5",
+  cyan: "#A4FDFD",
+  blue: "#9AC3FF",
+  indigo: "#A694FF",
+  violet: "#D4B3FF",
+  purple: "#E6BEFF",
+  pink: "#FFD1D9",
+  rose: "#FFA3C1",
+  fuchsia: "#FFB3FF",
+  navy: "#7F87FF",
+  olive: "#B9D994",
+  maroon: "#B97F7F",
+  gray: "#CBD5E0",
+  lightbrown: "#DDBB99",
+};
