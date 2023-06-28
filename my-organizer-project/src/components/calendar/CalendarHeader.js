@@ -1,5 +1,6 @@
 import React from "react";
 import Dropdown from "../ui/Dropdown";
+import Menu from "../ui/Menu";
 
 // * view mode options for the calendar
 const viewModeOptions = [
@@ -13,9 +14,25 @@ const viewModeOptions = [
   },
 ];
 
+// * calendar options
+const calendarOptions = [
+  {
+    label: "Clear events",
+    value: "clear",
+  },
+  {
+    label: "Highlight weekends",
+    value: "highlight",
+  },
+];
+
 export default function CalendarHeader({ setCurrentDate, viewMode, setViewMode }) {
   const handleViewModeChange = (modeOption) => {
     setViewMode(modeOption.value);
+  };
+
+  const handleCalendarOptionClick = (option) => {
+    console.log(option);
   };
 
   return (
@@ -29,6 +46,7 @@ export default function CalendarHeader({ setCurrentDate, viewMode, setViewMode }
           Today
         </button>
       </div>
+      {/* calendar title in the middle */}
       <div className="col-span-1 justify-center flex items-center gap-1">
         <div>My Calendar</div>
         <svg className="h-6 w-6" fill="#000000" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -39,9 +57,10 @@ export default function CalendarHeader({ setCurrentDate, viewMode, setViewMode }
           </g>
         </svg>
       </div>
-      {/* Calendar title in the middle */}
-      <div className="col-span-1 justify-self-end my-1.5">
+      {/* buttons to change the view mode or view calendar options */}
+      <div className="flex items-center gap-2 col-span-1 justify-self-end my-1.5">
         <Dropdown options={viewModeOptions} selectedOption={viewModeOptions.find((option) => option.value === viewMode)} setSelectedOption={handleViewModeChange} />
+        <Menu options={calendarOptions} handleOptionClick={handleCalendarOptionClick} />
       </div>
     </div>
   );
