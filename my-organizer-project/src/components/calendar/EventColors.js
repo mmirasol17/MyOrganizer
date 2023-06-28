@@ -1,8 +1,8 @@
 export const eventColors = {
+  blue: "#9AC3FF",
+  cyan: "#A4FDFD",
   orange: "#FBD38D",
   teal: "#9AE1D5",
-  cyan: "#A4FDFD",
-  blue: "#9AC3FF",
   indigo: "#A694FF",
   violet: "#D4B3FF",
   purple: "#E6BEFF",

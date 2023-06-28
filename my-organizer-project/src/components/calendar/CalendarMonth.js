@@ -109,12 +109,13 @@ export default function CalendarMonth({
                   if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {
                     return (
                       <div
-                        className={`transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5 bg-${event.color}-200`}
+                        className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5"
                         key={event.id}
                         onClick={(e) => {
                           e.stopPropagation();
                           handleEventClick(event);
                         }}
+                        style={{ backgroundColor: event.color }}
                       >
                         {event.startTime !== "" && event.endTime !== "" && event.startTime !== "all-day" && event.endTime && (
                           <>

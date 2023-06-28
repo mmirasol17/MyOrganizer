@@ -58,7 +58,7 @@ export default function EventPopup({ selectedEvent, setSelectedEvent, setEventEd
               {/* the event with its representational color and its date */}
               <div className="mb-4">
                 <div className="flex items-center gap-2">
-                  <div className={`w-6 h-6 mt-1 rounded-full bg-${selectedEvent.color}-200`} />
+                  <div className="w-6 h-6 mt-1 rounded-full" style={{ backgroundColor: selectedEvent.color }} />
                   <p className="font-bold text-2xl">{selectedEvent.name}</p>
                 </div>
                 <p className="text-gray-700 text-md ml-8">{format(selectedEvent.date, "eeee, MMMM d, yyyy")}</p>

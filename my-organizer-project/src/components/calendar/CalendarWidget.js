@@ -38,12 +38,12 @@ export default function CalendarWidget({ user }) {
           const holidays = await response.json();
           const formattedHolidays = holidays.map((holiday) => ({
             id: `${year}: ${holiday.name}`,
+            color: "#FCA5A5",
             name: holiday.name,
             date: new Date(holiday.date),
-            type: "holiday",
             startTime: "",
             endTime: "",
-            color: "red",
+            type: "holiday",
           }));
           const uniqueHolidays = formattedHolidays.filter((holiday, index, self) => index === self.findIndex((t) => t.name === holiday.name));
           setEvents((prevEvents) => {

@@ -7,10 +7,11 @@ import { eventColors } from "./EventColors";
 export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }) {
   const [show, setShow] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
+  const colorButtonRef = useRef(null);
   const colorMenuRef = useRef(null);
 
   // * event data that will be saved to Firestore
-  const [eventColor, setEventColor] = useState(eventColors["blue"]);
+  const [eventColor, setEventColor] = useState(eventColors.blue);
   const [eventName, setEventName] = useState("");
   const [eventDate, setEventDate] = useState("");
   const [eventStartTime, setEventStartTime] = useState("");
@@ -92,6 +93,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   // * function to save events to Firestore and update the events state
   const saveEvents = async (events) => {
     try {
+      console.log("Event color: " + eventColor);
       const userRef = doc(db, "users", user.uid);
       const eventsRef = collection(userRef, "events");
       const batch = writeBatch(db);
@@ -200,7 +202,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   useEffect(() => {
     if (eventAdd) {
       // reset the event data
-      setEventColor("blue");
+      setEventColor(eventColors.blue);
       setEventName("");
       setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
       setEventStartTime(eventAdd?.startTime ?? "");
@@ -234,7 +236,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
   // * when outside of the color menu is clicked, close the color menu
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (colorMenuRef.current && !colorMenuRef.current.contains(e.target)) {
+      if (colorMenuRef.current && !colorMenuRef.current.contains(e.target) && colorButtonRef.current && !colorButtonRef.current.contains(e.target)) {
         setShowColorMenu(false);
       }
     };
@@ -267,12 +269,13 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 <label htmlFor="event" className="block text-gray-700 font-bold mb-2 text-lg">
                   Event
                 </label>
-                <div className="flex items-center gap-1.5">
+                <div className="flex items-center gap-2">
                   {/* event color input */}
                   <div
-                    className={`flex transition hover:scale-110 shadow-lg justify-center items-center w-11 h-10 rounded-full`}
+                    ref={colorButtonRef}
+                    className="flex transition hover:scale-110 shadow-lg justify-center items-center w-11 h-10 rounded-full"
                     onClick={() => setShowColorMenu(!showColorMenu)}
-                    style={{ backgroundColor: eventColors[eventColor] }}
+                    style={{ backgroundColor: eventColor }}
                   >
                     <svg className="w-4 h-4" version="1.1" id="_x32_" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="#000000">
                       <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -289,22 +292,46 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                       </g>
                     </svg>
                   </div>
+                  {/* event color menu */}
                   {showColorMenu && (
                     <div
                       ref={colorMenuRef}
-                      className="absolute top-36 w-52 left-0 ml-4 mt-4 py-2 justify-center bg-white border border-gray-300 rounded-xl shadow-lg z-10 flex flex-wrap"
+                      className="absolute top-36 w-44 left-0 ml-4 mt-4 py-2 justify-center bg-white border border-gray-300 rounded-xl shadow-2xl z-10 flex flex-wrap"
                     >
                       {Object.keys(eventColors).map((color) => (
                         <div
                           key={color}
-                          className={`flex items-center gap-1.5 px-4 py-2 cursor-pointer hover:bg-gray-100`}
+                          className={`flex items-center gap-1.5 px-2 py-1 cursor-pointer`}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleEventColorChange(color);
+                            handleEventColorChange(eventColors[color]);
                             setShowColorMenu(false);
                           }}
                         >
-                          <div className={`w-6 h-6 rounded-full`} style={{ backgroundColor: eventColors[color] }}></div>
+                          <div
+                            className="w-8 h-8 rounded-full shadow-lg transform hover:scale-110 justify-center items-center relative"
+                            style={{ backgroundColor: eventColors[color] }}
+                          >
+                            {eventColor === eventColors[color] && (
+                              <svg
+                                className="w-6 h-6 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                              >
+                                <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                                <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                                <g id="SVGRepo_iconCarrier">
+                                  <path
+                                    fillRule="evenodd"
+                                    clipRule="evenodd"
+                                    d="M20.6097 5.20743C21.0475 5.54416 21.1294 6.17201 20.7926 6.60976L10.7926 19.6098C10.6172 19.8378 10.352 19.9793 10.0648 19.9979C9.77765 20.0166 9.49637 19.9106 9.29289 19.7072L4.29289 14.7072C3.90237 14.3166 3.90237 13.6835 4.29289 13.2929C4.68342 12.9024 5.31658 12.9024 5.70711 13.2929L9.90178 17.4876L19.2074 5.39034C19.5441 4.95258 20.172 4.87069 20.6097 5.20743Z"
+                                    fill="#000000"
+                                  ></path>
+                                </g>
+                              </svg>
+                            )}
+                          </div>
                         </div>
                       ))}
                     </div>
