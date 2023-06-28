@@ -273,7 +273,7 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   {/* event color input */}
                   <div
                     ref={colorButtonRef}
-                    className="flex transition hover:scale-110 shadow-lg justify-center items-center w-11 h-10 rounded-full"
+                    className="flex transition hover:scale-110 shadow-lg justify-center items-center w-11 h-10 rounded-full cursor-pointer"
                     onClick={() => setShowColorMenu(!showColorMenu)}
                     style={{ backgroundColor: eventColor }}
                   >
@@ -344,9 +344,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                     id="event"
                     value={eventName}
                     onChange={handleEventNameChange}
-                    className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 ${
-                      validEventName ? "" : "ring-2 ring-red-500"
-                    }`}
+                    className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 
+                              ${!validEventName && "ring-2 ring-red-500"}`}
                     placeholder="New Event Name"
                   />
                 </div>
@@ -363,9 +362,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 id="date"
                 value={eventDate}
                 onChange={handleEventDateChange}
-                className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 ${
-                  validEventDate ? "" : "ring-2 ring-red-500"
-                }`}
+                className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text 
+                          ${!validEventDate && "ring-2 ring-red-500"}`}
                 placeholder="New Event Date"
               />
             </div>
@@ -381,8 +379,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   id="start_time"
                   value={eventStartTime}
                   onChange={handleEventStartTimeChange}
-                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500
-                  ${validEventStartTime ? "" : "ring-2 ring-red-500"}`}
+                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text
+                            ${!validEventStartTime && "ring-2 ring-red-500"}`}
                   placeholder="Start Time"
                 />
               </div>
@@ -398,8 +396,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   id="end_time"
                   value={eventEndTime}
                   onChange={handleEventEndTimeChange}
-                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500
-                  ${validEventEndTime ? "" : "ring-2 ring-red-500"}`}
+                  className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text
+                  ${!validEventEndTime && "ring-2 ring-red-500"}`}
                   placeholder="End Time"
                 />
               </div>

@@ -1,6 +1,12 @@
-import React from "react";
+import React, { useState } from "react";
 
 export default function Footer() {
+  const [showDonationOptions, setShowDonationOptions] = useState(false);
+
+  const handleDonationOptionsClick = () => {
+    setShowDonationOptions(!showDonationOptions);
+  };
+
   return (
     <footer className="bg-gray-200 pt-4 text-center">
       <div className="flex flex-wrap justify-center">
@@ -112,15 +118,91 @@ export default function Footer() {
           <p className="text-gray-500 mb-4">
             If you find MyOrganizer useful, you can support me by making a donation. Your contribution helps in further development and maintenance of the app.
           </p>
-          <div className="flex justify-center">
-            <a
-              href="https://paypal.me/marinmirasol"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            >
-              Donate
-            </a>
+          <div className="flex justify-center items-center">
+            {!showDonationOptions ? (
+              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleDonationOptionsClick}>
+                Donate
+              </button>
+            ) : (
+              <div className="flex gap-3 items-center">
+                <div className="flex gap-2">
+                  {/* PayPal option */}
+                  <svg
+                    className="w-9 h-9 cursor-pointer transform hover:scale-110"
+                    onClick={() => {
+                      window.open("https://paypal.me/marinmirasol", "_blank");
+                    }}
+                    viewBox="4 4 42 42"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <circle cx="24" cy="24" r="20" fill="#0070BA"></circle>
+                      <path
+                        d="M32.3305 18.0977C32.3082 18.24 32.2828 18.3856 32.2542 18.5351C31.2704 23.5861 27.9046 25.331 23.606 25.331H21.4173C20.8916 25.331 20.4486 25.7127 20.3667 26.2313L19.2461 33.3381L18.9288 35.3527C18.8755 35.693 19.1379 36 19.4815 36H23.3634C23.8231 36 24.2136 35.666 24.286 35.2127L24.3241 35.0154L25.055 30.3772L25.1019 30.1227C25.1735 29.6678 25.5648 29.3338 26.0245 29.3338H26.6051C30.3661 29.3338 33.3103 27.8068 34.1708 23.388C34.5303 21.5421 34.3442 20.0008 33.393 18.9168C33.1051 18.59 32.748 18.3188 32.3305 18.0977Z"
+                        fill="white"
+                        fillOpacity="0.6"
+                      ></path>
+                      <path
+                        d="M31.3009 17.6871C31.1506 17.6434 30.9955 17.6036 30.8364 17.5678C30.6766 17.5328 30.5127 17.5018 30.3441 17.4748C29.754 17.3793 29.1074 17.334 28.4147 17.334H22.5676C22.4237 17.334 22.2869 17.3666 22.1644 17.4254C21.8948 17.5551 21.6944 17.8104 21.6459 18.1229L20.402 26.0013L20.3662 26.2311C20.4481 25.7126 20.8911 25.3308 21.4168 25.3308H23.6055C27.9041 25.3308 31.2699 23.5851 32.2537 18.5349C32.2831 18.3854 32.3078 18.2398 32.33 18.0975C32.0811 17.9655 31.8115 17.8525 31.5212 17.7563C31.4496 17.7324 31.3757 17.7094 31.3009 17.6871Z"
+                        fill="white"
+                        fillOpacity="0.8"
+                      ></path>
+                      <path
+                        d="M21.6461 18.1231C21.6946 17.8105 21.895 17.5552 22.1646 17.4264C22.2879 17.3675 22.4239 17.3349 22.5678 17.3349H28.4149C29.1077 17.3349 29.7542 17.3803 30.3444 17.4757C30.513 17.5027 30.6768 17.5338 30.8367 17.5687C30.9957 17.6045 31.1508 17.6443 31.3011 17.688C31.3759 17.7103 31.4498 17.7334 31.5222 17.7564C31.8125 17.8527 32.0821 17.9664 32.331 18.0976C32.6237 16.231 32.3287 14.9601 31.3194 13.8093C30.2068 12.5424 28.1986 12 25.629 12H18.169C17.6441 12 17.1963 12.3817 17.1152 12.9011L14.0079 32.5969C13.9467 32.9866 14.2473 33.3381 14.6402 33.3381H19.2458L20.4022 26.0014L21.6461 18.1231Z"
+                        fill="white"
+                      ></path>
+                    </g>
+                  </svg>
+
+                  {/* Venmo option */}
+                  <svg
+                    className="w-9 h-9 cursor-pointer transform hover:scale-110"
+                    onClick={() => {
+                      window.open("https://venmo.com/u/Marin-Mirasol", "_blank");
+                    }}
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-label="Venmo"
+                    role="img"
+                    viewBox="0 0 550 550"
+                    fill="#000000"
+                  >
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <rect width="512" height="512" rx="15%" fill="#3396cd"></rect>
+                      <path
+                        d="m381.4 105.3c11 18.1 15.9 36.7 15.9 60.3 0 75.1-64.1 172.7-116.2 241.2h-118.8l-47.6-285 104.1-9.9 25.3 202.8c23.5-38.4 52.6-98.7 52.6-139.7 0-22.5-3.9-37.8-9.9-50.4z"
+                        fill="#ffffff"
+                      ></path>
+                    </g>
+                  </svg>
+                </div>
+
+                {/* cancel button */}
+                <div className="bg-gray-300 hover:bg-gray-400 rounded-full cursor-pointer transform hover:scale-110 p-2" onClick={handleDonationOptionsClick}>
+                  <svg className="w-3 h-3" viewBox="0 0 22 22" version="1.1" xmlns="http://www.w3.org/2000/svg" fill="#000000">
+                    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+                    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <title>cancel</title> <desc>Created with Sketch.</desc>
+                      <g id="icons" stroke="none" strokeWidth="1" fill="none" fillRule="evenodd">
+                        <g id="ui-gambling-website-lined-icnos-casinoshunter" transform="translate(-869.000000, -159.000000)" fill="#252528" fillRule="nonzero">
+                          <g id="square-filled" transform="translate(50.000000, 120.000000)">
+                            <path
+                              d="M820.716328,39.2890737 L830,48.573 L839.283672,39.2890737 C839.644156,38.9285898 840.211387,38.9008602 840.603678,39.2058851 L840.710926,39.3021143 C841.101451,39.6926386 841.101451,40.3258036 840.710926,40.7163279 L831.427,50 L840.710926,59.2836721 C841.07141,59.6441561 841.09914,60.2113872 840.794115,60.6036784 L840.697886,60.7109263 C840.307361,61.1014506 839.674196,61.1014506 839.283672,60.7109263 L830,51.427 L820.716328,60.7109263 C820.355844,61.0714102 819.788613,61.0991398 819.396322,60.7941149 L819.289074,60.6978857 C818.898549,60.3073614 818.898549,59.6741964 819.289074,59.2836721 L828.573,50 L819.289074,40.7163279 C818.92859,40.3558439 818.90086,39.7886128 819.205885,39.3963216 L819.302114,39.2890737 C819.692639,38.8985494 820.325804,38.8985494 820.716328,39.2890737 Z M819.996181,40.0092211 L829.987233,50 L819.996181,59.9907789 L820.009221,60.0038195 L830,50.0127671 L839.990779,60.0038195 L840.003819,59.9907789 L830.012767,50 L840.003819,40.0092211 L839.990779,40.9961805 L830,50.9872329 L820.009221,40.9961805 L819.996181,40.0092211 Z"
+                              id="cancel"
+                            ></path>
+                          </g>
+                        </g>
+                      </g>
+                    </g>
+                  </svg>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
