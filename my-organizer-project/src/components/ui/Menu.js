@@ -70,7 +70,7 @@ export default function Menu({ options, handleOptionClick }) {
       {isOpen && (
         <div
           ref={menuRef}
-          className="origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 w-48"
+          className="origin-top-right absolute right-0 mt-2 rounded-md shadow-lg bg-gray-800 ring-1 ring-black ring-opacity-5 w-52"
           role="menu"
           aria-orientation="vertical"
           aria-labelledby={menuId}

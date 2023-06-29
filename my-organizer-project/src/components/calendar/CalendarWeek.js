@@ -3,7 +3,17 @@ import { format, isToday, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay
 
 import { convertToRegularTime, shortenTime } from "./CalendarUtils";
 
-export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay, handleDayClick, handleEventClick, getEventsForDay, renderEventButton }) {
+export default function CalendarWeek({
+  currentDate,
+  selectedDay,
+  eventAdd,
+  highlightWeekends,
+  getEventsForDay,
+  setCurrentDate,
+  handleDayClick,
+  handleNewEventClick,
+  handleEventClick,
+}) {
   // * week calendar date management
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(weekStart);
@@ -100,7 +110,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
         {/* All day slot at the top */}
         <div className="grid grid-cols-8 grid-auto-rows">
           {/* all day indicator */}
-          <div className="" />
+          <div />
           {/* All day slot */}
           <div
             className={`col-span-7 grid grid-cols-7 border-gray-400
@@ -110,6 +120,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
             {weekDays.map((weekDay) => {
               // only get events that have a startTime and endTime of ""
               const dayEvents = getEventsForDay(weekDay).filter((event) => event.startTime === "" && event.endTime === "");
+              const isWeekend = highlightWeekends && (weekDay.getDay() === 0 || weekDay.getDay() === 6);
 
               return (
                 <div
@@ -118,6 +129,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                   onClick={() => {
                     handleDayClick(weekDay);
                   }}
+                  style={{ backgroundColor: isWeekend ? "#E5E4E2" : "" }}
                 >
                   {/* Box for all day events of the current day */}
                   <div className="border-l-[0.5px] border-gray-400 relative p-0.5" style={{ minHeight: "50px" }}>
@@ -184,7 +196,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
             <div className="col-span-7 grid grid-cols-7">
               {weekDays.map((weekDay) => {
                 const dayEvents = getEventsForDay(weekDay);
-
+                const isWeekend = highlightWeekends && (weekDay.getDay() === 0 || weekDay.getDay() === 6);
                 return (
                   <div
                     key={weekDay.toString()}
@@ -201,7 +213,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                         ${i === 0 && "border-t-[0.5px]"} 
                         ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
                       `}
-                        style={{ height: "50px" }}
+                        style={{ height: "50px", backgroundColor: isWeekend ? "#E5E4E2" : "" }}
                       >
                         {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
                       </div>

@@ -4,13 +4,14 @@ import { convertToRegularTime, shortenTime } from "./CalendarUtils";
 
 export default function CalendarMonth({
   currentDate,
-  setCurrentDate,
   selectedDay,
+  eventAdd,
+  highlightWeekends,
+  setCurrentDate,
+  getEventsForDay,
   handleDayClick,
   handleNewEventClick,
   handleEventClick,
-  getEventsForDay,
-  renderEventButton,
 }) {
   // * month calendar date management
   const monthStart = startOfMonth(currentDate);
@@ -76,29 +77,31 @@ export default function CalendarMonth({
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
+            const isEventAdd = isSameDay(day, eventAdd);
             const isTopRow = index < 7;
             const isMiddleColumn = index % 7 === 0;
+            const isWeekend = highlightWeekends && (index % 7 === 0 || index % 7 === 6);
             return (
               <div
                 key={`${day.toString()}-${index}`} // Assign a unique key using the date and index
-                className={`p-0.5 hover:bg-gray-100 cursor-pointer text-center border-gray-400
+                className={`p-0.5 h-[92px] hover:bg-gray-200 cursor-pointer text-center border-gray-400
                   ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} 
-                  ${isSelectedDay ? "bg-blue-200" : "bg-white"}
+                  ${isSelectedDay || isEventAdd ? "bg-blue-200" : "bg-white"}
                   ${isTopRow ? "border-[0.5px]" : "border-[0.5px] border-t-0"}
                   ${isMiddleColumn ? "border-l-[0.5px]" : "border-l-0"}
                 `}
-                style={{
-                  height: "92px",
-                }}
                 onClick={() => {
                   handleNewEventClick(day);
                 }}
+                style={
+                  { backgroundColor: isWeekend && !(isSelectedDay || isEventAdd) ? "#E5E4E2" : "" } // if it's a weekend, change the background color
+                }
               >
                 <div className="w-full cursor-pointer flex items-center justify-center">
                   <div
                     className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 ${
                       isToday(day) ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"
-                    } ${isSelectedDay ? "text-blue-500" : ""}`}
+                    } ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}`}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDayClick(day);

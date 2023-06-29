@@ -161,11 +161,6 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
       setValidEventEndTime(false);
       return;
     }
-    if (eventStartTime !== "" && eventEndTime !== "" && eventStartTime >= eventEndTime) {
-      setValidEventStartTime(false);
-      setValidEventEndTime(false);
-      return;
-    }
     if (repeatOption !== "none" && repeatEnd === "") {
       setValidEventEndDate(false);
       return;

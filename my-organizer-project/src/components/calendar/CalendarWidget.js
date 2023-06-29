@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { format, isSameDay, parseISO } from "date-fns";
-import { db, collection, doc, getDocs } from "../../firebase/FirebaseConfig";
+import { db, collection, doc, setDoc, getDocs } from "../../firebase/FirebaseConfig";
 import Widget from "../ui/Widget";
 import CalendarHeader from "./CalendarHeader";
 import CalendarMonth from "./CalendarMonth";
@@ -10,8 +10,9 @@ import DayPopup from "./DayPopup";
 import EventAddPopup from "./EventAddPopup";
 
 export default function CalendarWidget({ user }) {
-  // * calendar view mode management
+  // * calendar settings
   const [viewMode, setViewMode] = useState("month");
+  const [highlightWeekends, setHighlightWeekends] = useState(false);
 
   // * calendar date management
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -95,64 +96,89 @@ export default function CalendarWidget({ user }) {
     }
   }, [user, events]);
 
+  // * fetch the highlight weekends setting from Firestore
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const settingsRef = collection(userRef, "calendar_settings");
+        const querySnapshot = await getDocs(settingsRef);
+        if (!querySnapshot.empty) {
+          const settingsDoc = querySnapshot.docs[0];
+          const settingsData = settingsDoc.data();
+          setHighlightWeekends(settingsData.highlightWeekends);
+          setViewMode(settingsData.viewMode);
+        } else {
+          const newSettings = {
+            highlightWeekends: false,
+            viewMode: "month",
+          };
+          await setDoc(doc(settingsRef), newSettings);
+        }
+      } catch (error) {
+        console.error("Error fetching calendar settings: ", error);
+      }
+    };
+    if (user) fetchSettings();
+  }, [user, highlightWeekends]);
+
+  // * functions for handling user events
   const handleDayClick = (day) => {
     setSelectedDay(day);
   };
-
-  // * For when the user clicks on an event
   const handleEventClick = (event) => {
     setSelectedEvent(event);
   };
-
-  // * For when the user clicks on a day to add an event
   const handleNewEventClick = (day) => {
     setEventAdd(day);
   };
 
-  // * For getting the events for a day
+  // * get events for a specific day
   const getEventsForDay = (day) => {
     return events.filter((event) => isSameDay(event.date, day));
-  };
-
-  const renderEventButton = (count) => {
-    return (
-      <button className="text-xs font-bold" onClick={() => setSelectedDay(day)}>
-        {`+${count} more`}
-      </button>
-    );
   };
 
   return (
     <Widget id="calendar">
       {/* widget header */}
-      <CalendarHeader user={user} setCurrentDate={setCurrentDate} setEvents={setEvents} viewMode={viewMode} setViewMode={setViewMode} />
+      <CalendarHeader
+        user={user}
+        viewMode={viewMode}
+        highlightWeekends={highlightWeekends}
+        setCurrentDate={setCurrentDate}
+        setEvents={setEvents}
+        setViewMode={setViewMode}
+        setHighlightWeekends={setHighlightWeekends}
+      />
 
       {/* show month calendar if user chooses to see the month view mode */}
       {viewMode === "month" && (
         <CalendarMonth
-          handleDayClick={handleDayClick}
           currentDate={currentDate}
+          selectedDay={selectedDay}
+          eventAdd={eventAdd}
+          highlightWeekends={highlightWeekends}
           setCurrentDate={setCurrentDate}
-          events={events}
           setEvents={setEvents}
           getEventsForDay={getEventsForDay}
-          handleNewEventClick={handleNewEventClick}
+          handleDayClick={handleDayClick}
           handleEventClick={handleEventClick}
-          renderEventButton={renderEventButton}
+          handleNewEventClick={handleNewEventClick}
         />
       )}
       {/* show week calendar if user chooses to see the week view mode */}
       {viewMode === "week" && (
         <CalendarWeek
-          handleDayClick={handleDayClick}
           currentDate={currentDate}
+          selectedDay={selectedDay}
+          eventAdd={eventAdd}
+          highlightWeekends={highlightWeekends}
           setCurrentDate={setCurrentDate}
-          events={events}
           setEvents={setEvents}
           getEventsForDay={getEventsForDay}
-          handleNewEventClick={handleNewEventClick}
+          handleDayClick={handleDayClick}
           handleEventClick={handleEventClick}
-          renderEventButton={renderEventButton}
+          handleNewEventClick={handleNewEventClick}
         />
       )}
 

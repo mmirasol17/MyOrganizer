@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { db, doc, updateDoc, getDoc, setDoc, collection, getDocs, deleteDoc } from "../../firebase/FirebaseConfig";
 
 import Dropdown from "../ui/Dropdown";
@@ -16,28 +16,34 @@ const viewModeOptions = [
   },
 ];
 
-// * calendar options
-const calendarOptions = [
-  {
-    label: "Clear all events",
-    value: "clear",
-  },
-  {
-    label: "Highlight weekends",
-    value: "highlight",
-  },
-];
+export default function CalendarHeader({ user, setEvents, setCurrentDate, viewMode, setViewMode, highlightWeekends, setHighlightWeekends }) {
+  // * calendar options
+  const calendarOptions = [
+    {
+      label: "Clear all events",
+      value: "clear",
+    },
+    highlightWeekends
+      ? {
+          label: "Unhighlight weekends",
+          value: "unhighlight",
+        }
+      : {
+          label: "Highlight weekends",
+          value: "highlight",
+        },
+  ];
 
-export default function CalendarHeader({ user, setEvents, setCurrentDate, viewMode, setViewMode }) {
   // * handle when user events happen
   const handleViewModeChange = (modeOption) => {
     setViewMode(modeOption.value);
+    updateViewModeSetting(modeOption.value);
   };
   const handleCalendarOptionClick = (option) => {
     if (option.value === "clear") {
       clearCalendarEvents();
-    } else if (option.value === "highlight") {
-      highlightWeekends();
+    } else if (option.value === "highlight" || option.value === "unhighlight") {
+      updateHighlightWeekendsSetting();
     }
   };
 
@@ -57,27 +63,45 @@ export default function CalendarHeader({ user, setEvents, setCurrentDate, viewMo
     }
   };
 
-  // * set the highlight weekends setting to true in Firestore
-  const highlightWeekends = async () => {
+  // * set the view mode setting in Firestore
+  const updateViewModeSetting = async (viewMode) => {
     try {
       const userRef = doc(db, "users", user.uid);
       const settingsRef = collection(userRef, "calendar_settings");
       const querySnapshot = await getDocs(settingsRef);
       if (querySnapshot.empty) {
-        // if there are no settings, create a new one
+        const newSettings = {
+          viewMode: "month",
+        };
+        await setDoc(doc(settingsRef), newSettings);
+      } else {
+        const settingsDoc = querySnapshot.docs[0];
+        await updateDoc(settingsDoc.ref, {
+          viewMode: viewMode,
+        });
+      }
+    } catch (error) {
+      console.error("Error updating calendar settings: ", error);
+    }
+  };
+
+  // * set the highlight weekends setting to true in Firestore
+  const updateHighlightWeekendsSetting = async () => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const settingsRef = collection(userRef, "calendar_settings");
+      const querySnapshot = await getDocs(settingsRef);
+      if (querySnapshot.empty) {
         const newSettings = {
           highlightWeekends: true,
         };
         await setDoc(doc(settingsRef), newSettings);
       } else {
-        // if there are settings, update the existing one
         const settingsDoc = querySnapshot.docs[0];
-        const settings = settingsDoc.data();
-        const updatedSettings = {
-          ...settings,
-          highlightWeekends: true,
-        };
-        await updateDoc(settingsDoc.ref, updatedSettings);
+        await updateDoc(settingsDoc.ref, {
+          highlightWeekends: !highlightWeekends,
+        });
+        setHighlightWeekends(!highlightWeekends);
       }
     } catch (error) {
       console.error("Error updating calendar settings: ", error);
