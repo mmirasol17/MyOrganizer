@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import { format, isToday, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
 
-export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay, handleDayClick, getEventsForDay, renderEventButton }) {
+import { convertToRegularTime, shortenTime } from "./CalendarUtils";
+
+export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay, handleDayClick, handleEventClick, getEventsForDay, renderEventButton }) {
   // * week calendar date management
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(weekStart);
@@ -96,13 +98,13 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
         </div>
 
         {/* All day slot at the top */}
-        <div className={`grid grid-cols-8 grid-auto-rows ${isScrollAtTop ? "z-0" : "bg-white"}`}>
+        <div className="grid grid-cols-8 grid-auto-rows">
           {/* all day indicator */}
-          <div className={`${isScrollAtTop ? "bg-opacity-0" : "bg-white"}`} />
+          <div className="" />
           {/* All day slot */}
           <div
             className={`col-span-7 grid grid-cols-7 border-gray-400
-              ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] drop-shadow-md"}
+              ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px]"}
             `}
           >
             {weekDays.map((weekDay) => {
@@ -118,13 +120,38 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                   }}
                 >
                   {/* Box for all day events of the current day */}
-                  <div className="border-l-[0.5px] border-gray-400 relative" style={{ minHeight: "50px" }}>
-                    {/* Show each event in its corresponding timeslot */}
+                  <div className="border-l-[0.5px] border-gray-400 relative p-0.5" style={{ minHeight: "50px" }}>
+                    {/* events */}
                     {dayEvents.map((event, index) => {
-                      if (index < 2) {
-                        return <div key={event.id}>{event.name}</div>;
-                      } else if (index === 2) {
-                        return renderEventButton(dayEvents.length - 2);
+                      // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
+                      if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {
+                        return (
+                          <div
+                            className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5"
+                            key={event.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleEventClick(event);
+                            }}
+                            style={{ backgroundColor: event.color }}
+                          >
+                            <div className="font-bold">{event.name}</div>
+                          </div>
+                        );
+                      }
+                      // if there are more than 4 events, show a button to show the rest
+                      else if (dayEvents.length > 4 && index === 4) {
+                        return (
+                          <div
+                            className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center hover:bg-gray-200 text-xs/3 px-0.5 mb-0.5"
+                            key={dayEvents.length}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                            }}
+                          >
+                            <div className="font-bold text-center">+{dayEvents.length - 3} more</div>
+                          </div>
+                        );
                       }
                       return null;
                     })}
@@ -179,15 +206,6 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                         {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
                       </div>
                     ))}
-                    {/* Show each event in its corresponding timeslot */}
-                    {dayEvents.map((event, index) => {
-                      if (index < 2) {
-                        return <div key={event.id}>{event.name}</div>;
-                      } else if (index === 2) {
-                        return renderEventButton(dayEvents.length - 2);
-                      }
-                      return null;
-                    })}
                   </div>
                 );
               })}
