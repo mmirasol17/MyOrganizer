@@ -96,13 +96,14 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
         </div>
 
         {/* All day slot at the top */}
-        <div className="grid grid-cols-8 grid-auto-rows">
-          <div className={`-mt-3 ${isScrollAtTop && "bg-transparent"}`}></div>
+        <div className={`grid grid-cols-8 grid-auto-rows ${isScrollAtTop ? "z-0" : "bg-white"}`}>
+          {/* all day indicator */}
+          <div className={`${isScrollAtTop ? "bg-opacity-0" : "bg-white"}`} />
           {/* All day slot */}
           <div
             className={`col-span-7 grid grid-cols-7 border-gray-400
-          ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] drop-shadow-md"}
-          `}
+              ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] drop-shadow-md"}
+            `}
           >
             {weekDays.map((weekDay) => {
               // only get events that have a startTime and endTime of ""
@@ -141,7 +142,7 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
             <div className="border-gray-300 -mt-3">
               {Array.from({ length: 24 }, (_, i) => (
                 <div key={i} className="flex gap-3 justify-end font-bold" style={{ height: "50px" }}>
-                  {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}
+                  <div className={`${isScrollAtTop && i === 0 ? "absolute mr-9 z-10" : ""}`}> {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}</div>
                   <div
                     className={`mt-3 h-full border-gray-400 w-6
                     ${i === 0 && "border-t-[0.5px]"}
