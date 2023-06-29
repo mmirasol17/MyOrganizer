@@ -25,8 +25,8 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
   }
 
   return (
-    <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
-      <div className="flex flex-col">
+    <div className="w-full p-2 text-center">
+      <div className="flex flex-col pr-3">
         <div className="flex items-center justify-center">
           <button className="bg-gray-800 rounded-full p-0.5 transition hover:scale-110 hover:bg-gray-600" onClick={handlePrevWeek}>
             <svg className="w-7 h-7 fill-white" fill="#000000" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
@@ -80,45 +80,100 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
           })}
         </div>
 
-        <div className="grid grid-cols-8 border border-b-0 border-gray-300">
-          <div className="border-r border-gray-300">
-            {/* Timeline */}
-            {Array.from({ length: 24 }, (_, i) => (
-              <div key={i} className="border-b-1.5 font-bold border-gray-300 p-1">
-                {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}
-              </div>
-            ))}
-          </div>
+        {/* All day slot at the top */}
+        <div className="grid grid-cols-8 border-gray-300 grid-auto-rows">
+          <div className="border-gray-300 -mt-3"></div>
+          {/* All day slot */}
+          <div className="col-span-7 grid grid-cols-7 border-gray-300 border-x-[0.5px] border-b-[0.5px] border-r-0">
+            {weekDays.map((weekDay) => {
+              // only get events that have a startTime and endTime of ""
+              const dayEvents = getEventsForDay(weekDay).filter((event) => event.startTime === "" && event.endTime === "");
 
-          {weekDays.map((weekDay) => {
-            const dayEvents = getEventsForDay(weekDay);
-
-            return (
-              <div
-                key={weekDay.toString()}
-                className="text-center border h-full border-gray-300"
-                onClick={() => {
-                  handleDayClick(weekDay);
-                }}
-              >
-                {/* Box timeslot for each hour of the day */}
-                {Array.from({ length: 23 }, (_, i) => (
-                  <div key={i} className="border-b border-gray-300 relative" style={{ height: "33px" }}>
-                    {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
+              return (
+                <div
+                  key={weekDay.toString()}
+                  className="text-center h-full border-gray-300"
+                  onClick={() => {
+                    handleDayClick(weekDay);
+                  }}
+                >
+                  {/* Box for all day events of the current day */}
+                  <div
+                    className={`border-x-[0.5px] border-b-[0.5px] border-gray-300 relative
+                      ${"Sat" === format(weekDay, "eee") && "border-r-0"}
+                    `}
+                    style={{ minHeight: "50px" }}
+                  >
+                    {/* Show each event in its corresponding timeslot */}
+                    {dayEvents.map((event, index) => {
+                      if (index < 2) {
+                        return <div key={event.id}>{event.name}</div>;
+                      } else if (index === 2) {
+                        return renderEventButton(dayEvents.length - 2);
+                      }
+                      return null;
+                    })}
                   </div>
-                ))}
-                {/* Show each event in its corresponding timeslot */}
-                {dayEvents.map((event, index) => {
-                  if (index < 2) {
-                    return <div key={event.id}>{event.name}</div>;
-                  } else if (index === 2) {
-                    return renderEventButton(dayEvents.length - 2);
-                  }
-                  return null;
-                })}
-              </div>
-            );
-          })}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Time slots container */}
+        <div className="time-slots-container" style={{ maxHeight: "calc(50vh - 200px)", overflowY: "auto", width: "calc(100% + 15px)" }}>
+          <div className="grid grid-cols-8 grid-auto-rows">
+            {/* Left side timeline */}
+            <div className="border-gray-300 -mt-3">
+              {Array.from({ length: 24 }, (_, i) => (
+                <div key={i} className="flex gap-3 justify-end font-bold" style={{ height: "50px" }}>
+                  {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}
+                  <hr className="border-gray-300 border-[0.5px] w-8 mt-3" />
+                </div>
+              ))}
+            </div>
+
+            {/* Time slots for each day */}
+            <div className="col-span-7 grid grid-cols-7 border-gray-300 border-[0.5px] border-t-0 border-b-0 border-r-0">
+              {weekDays.map((weekDay) => {
+                const dayEvents = getEventsForDay(weekDay);
+
+                return (
+                  <div
+                    key={weekDay.toString()}
+                    className="text-center h-full"
+                    onClick={() => {
+                      handleDayClick(weekDay);
+                    }}
+                  >
+                    {/* Box timeslot for each hour of the day */}
+                    {Array.from({ length: 24 }, (_, i) => (
+                      <div
+                        key={i}
+                        className={`border-[0.5px] border-gray-300 relative 
+                        ${"Sat" === format(weekDay, "eee") && "border-r-0"}
+                        ${i === 23 && "border-b-0"}
+                        ${i === 0 && "border-t-0"}
+                      `}
+                        style={{ height: "50px" }}
+                      >
+                        {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
+                      </div>
+                    ))}
+                    {/* Show each event in its corresponding timeslot */}
+                    {dayEvents.map((event, index) => {
+                      if (index < 2) {
+                        return <div key={event.id}>{event.name}</div>;
+                      } else if (index === 2) {
+                        return renderEventButton(dayEvents.length - 2);
+                      }
+                      return null;
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         </div>
       </div>
     </div>
