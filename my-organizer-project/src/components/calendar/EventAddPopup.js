@@ -95,11 +95,11 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     try {
       console.log("Event color: " + eventColor);
       const userRef = doc(db, "users", user.uid);
-      const eventsRef = collection(userRef, "events");
+      const calendarEventsRef = collection(userRef, "calendar_events");
       const batch = writeBatch(db);
       events.forEach((event) => {
-        const eventRef = doc(eventsRef);
-        batch.set(eventRef, event);
+        const calendarEventRef = doc(calendarEventsRef);
+        batch.set(calendarEventRef, event);
       });
       await batch.commit();
     } catch (error) {

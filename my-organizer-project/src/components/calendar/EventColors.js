@@ -1,17 +1,26 @@
 export const eventColors = {
-  blue: "#9AC3FF",
+  // blue group
+  blue: "#0096FF",
+  lightblue: "#9AC3FF",
   cyan: "#A4FDFD",
-  orange: "#FBD38D",
-  teal: "#9AE1D5",
-  indigo: "#A694FF",
-  violet: "#D4B3FF",
-  purple: "#E6BEFF",
-  pink: "#FFD1D9",
-  rose: "#FFA3C1",
+
+  // pink/purple group
+  purple: "#A694FF",
   fuchsia: "#FFB3FF",
-  navy: "#7F87FF",
-  olive: "#B9D994",
-  maroon: "#B97F7F",
-  gray: "#CBD5E0",
-  lightbrown: "#DDBB99",
+  pink: "#FFD1D9",
+
+  // orange group
+  coral: "#FF7F50",
+  orange: "#FFAC1C",
+  lightorange: "#FBD38D",
+
+  // brown group
+  cinnamon: "#CD7F32",
+  camel: "#C19A6B",
+  lightbrown: "#F5DEB3",
+
+  // grey group
+  smoke: "#848884",
+  silver: "#b6b6b6",
+  lightgrey: "#d1d1d1",
 };

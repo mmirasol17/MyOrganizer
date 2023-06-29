@@ -1,4 +1,6 @@
 import React from "react";
+import { db, doc, updateDoc, getDoc, setDoc, collection, getDocs, deleteDoc } from "../../firebase/FirebaseConfig";
+
 import Dropdown from "../ui/Dropdown";
 import Menu from "../ui/Menu";
 
@@ -17,7 +19,7 @@ const viewModeOptions = [
 // * calendar options
 const calendarOptions = [
   {
-    label: "Clear events",
+    label: "Clear all events",
     value: "clear",
   },
   {
@@ -26,15 +28,63 @@ const calendarOptions = [
   },
 ];
 
-export default function CalendarHeader({ setCurrentDate, viewMode, setViewMode }) {
+export default function CalendarHeader({ user, setEvents, setCurrentDate, viewMode, setViewMode }) {
+  // * handle when user events happen
   const handleViewModeChange = (modeOption) => {
     setViewMode(modeOption.value);
   };
-
   const handleCalendarOptionClick = (option) => {
-    console.log(option);
+    if (option.value === "clear") {
+      clearCalendarEvents();
+    } else if (option.value === "highlight") {
+      highlightWeekends();
+    }
   };
 
+  // * clear all events from the calendar
+  const clearCalendarEvents = async () => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const eventsRef = collection(userRef, "calendar_events");
+      const querySnapshot = await getDocs(eventsRef);
+      querySnapshot.forEach((doc) => {
+        deleteDoc(doc.ref);
+      });
+      // get rid of the deleted events from the state but keep the holidays
+      setEvents((prevEvents) => prevEvents.filter((event) => event.type === "holiday"));
+    } catch (error) {
+      console.error("Error clearing events: ", error);
+    }
+  };
+
+  // * set the highlight weekends setting to true in Firestore
+  const highlightWeekends = async () => {
+    try {
+      const userRef = doc(db, "users", user.uid);
+      const settingsRef = collection(userRef, "calendar_settings");
+      const querySnapshot = await getDocs(settingsRef);
+      if (querySnapshot.empty) {
+        // if there are no settings, create a new one
+        const newSettings = {
+          highlightWeekends: true,
+        };
+        await setDoc(doc(settingsRef), newSettings);
+      } else {
+        // if there are settings, update the existing one
+        const settingsDoc = querySnapshot.docs[0];
+        const settings = settingsDoc.data();
+        const updatedSettings = {
+          ...settings,
+          highlightWeekends: true,
+        };
+        await updateDoc(settingsDoc.ref, updatedSettings);
+      }
+    } catch (error) {
+      console.error("Error updating calendar settings: ", error);
+    }
+  };
+
+  // * UI for the calendar header
   return (
     <div className="bg-blue-200 grid grid-cols-3 rounded-t-lg w-full h-12 font-bold items-center px-2 sticky">
       <div className="col-span-1 justify-self-start">

@@ -67,8 +67,8 @@ export default function CalendarWidget({ user }) {
     const fetchEvents = async () => {
       try {
         const userRef = doc(db, "users", user.uid);
-        const eventsRef = collection(userRef, "events");
-        const snapshot = await getDocs(eventsRef);
+        const calendarEventsRef = collection(userRef, "calendar_events");
+        const snapshot = await getDocs(calendarEventsRef);
         if (!snapshot.empty) {
           const fetchedEvents = snapshot.docs.map((doc) => {
             const eventData = doc.data();
@@ -78,9 +78,8 @@ export default function CalendarWidget({ user }) {
               date: eventData.date.toDate(),
             };
           });
-          const uniqueEvents = fetchedEvents.filter((event, index, self) => index === self.findIndex((t) => t.id === event.id));
           setEvents((prevEvents) => {
-            const filteredEvents = uniqueEvents.filter((event) => {
+            const filteredEvents = fetchedEvents.filter((event) => {
               return !prevEvents.some((prevEvent) => prevEvent.id === event.id);
             });
             return [...prevEvents, ...filteredEvents];
@@ -90,11 +89,11 @@ export default function CalendarWidget({ user }) {
         console.error("Error fetching events: ", error);
       }
     };
-    if (user) {
+    if (user && events.length === 0) {
       fetchEvents();
       console.log("fetching events" + events);
     }
-  }, [user]);
+  }, [user, events]);
 
   const handleDayClick = (day) => {
     setSelectedDay(day);
@@ -126,7 +125,7 @@ export default function CalendarWidget({ user }) {
   return (
     <Widget id="calendar">
       {/* widget header */}
-      <CalendarHeader setCurrentDate={setCurrentDate} viewMode={viewMode} setViewMode={setViewMode} />
+      <CalendarHeader user={user} setCurrentDate={setCurrentDate} setEvents={setEvents} viewMode={viewMode} setViewMode={setViewMode} />
 
       {/* show month calendar if user chooses to see the month view mode */}
       {viewMode === "month" && (
