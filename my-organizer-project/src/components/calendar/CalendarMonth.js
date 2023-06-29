@@ -70,18 +70,23 @@ export default function CalendarMonth({
         </div>
 
         {/* grid of all month days */}
-        <div className="grid grid-cols-7 border-[0.5px] border-gray-300">
+        <div className="grid grid-cols-7">
           {days.map((day, index) => {
             // Add index as the second argument
             const dayEvents = getEventsForDay(day);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
+            const isTopRow = index < 7;
+            const isMiddleColumn = index % 7 === 0;
             return (
               <div
                 key={`${day.toString()}-${index}`} // Assign a unique key using the date and index
-                className={`p-0.5 hover:bg-gray-100 cursor-pointer text-center border-[0.5px] border-gray-300 ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} ${
-                  isSelectedDay ? "bg-blue-200" : ""
-                }`}
+                className={`p-0.5 hover:bg-gray-100 cursor-pointer text-center border-gray-400
+                  ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} 
+                  ${isSelectedDay ? "bg-blue-200" : "bg-white"}
+                  ${isTopRow ? "border-[0.5px]" : "border-[0.5px] border-t-0"}
+                  ${isMiddleColumn ? "border-l-[0.5px]" : "border-l-0"}
+                `}
                 style={{
                   height: "92px",
                 }}

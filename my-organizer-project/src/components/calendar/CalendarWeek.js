@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { format, isToday, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
 
 export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay, handleDayClick, getEventsForDay, renderEventButton }) {
@@ -7,6 +7,21 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
   const weekEnd = endOfWeek(weekStart);
   const weekStartDate = startOfWeek(weekStart);
   const weekEndDate = endOfWeek(weekEnd);
+
+  const scrollContainerRef = useRef(null);
+  const [isScrollAtTop, setIsScrollAtTop] = useState(true);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (scrollContainerRef.current.scrollTop === 0) setIsScrollAtTop(true);
+      else setIsScrollAtTop(false);
+    };
+    const scrollContainer = scrollContainerRef.current;
+    scrollContainer.addEventListener("scroll", handleScroll);
+    return () => {
+      scrollContainer.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
 
   // * For changing weeks on the week calendar
   const handlePrevWeek = () => {
@@ -81,10 +96,14 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
         </div>
 
         {/* All day slot at the top */}
-        <div className="grid grid-cols-8 border-gray-300 grid-auto-rows">
-          <div className="border-gray-300 -mt-3"></div>
+        <div className="grid grid-cols-8 grid-auto-rows">
+          <div className={`-mt-3 ${isScrollAtTop && "bg-transparent"}`}></div>
           {/* All day slot */}
-          <div className="col-span-7 grid grid-cols-7 border-gray-300 border-x-[0.5px] border-b-[0.5px] border-r-0">
+          <div
+            className={`col-span-7 grid grid-cols-7 border-gray-400
+          ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] drop-shadow-md"}
+          `}
+          >
             {weekDays.map((weekDay) => {
               // only get events that have a startTime and endTime of ""
               const dayEvents = getEventsForDay(weekDay).filter((event) => event.startTime === "" && event.endTime === "");
@@ -92,18 +111,13 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
               return (
                 <div
                   key={weekDay.toString()}
-                  className="text-center h-full border-gray-300"
+                  className="text-center h-full"
                   onClick={() => {
                     handleDayClick(weekDay);
                   }}
                 >
                   {/* Box for all day events of the current day */}
-                  <div
-                    className={`border-x-[0.5px] border-b-[0.5px] border-gray-300 relative
-                      ${"Sat" === format(weekDay, "eee") && "border-r-0"}
-                    `}
-                    style={{ minHeight: "50px" }}
-                  >
+                  <div className="border-l-[0.5px] border-gray-400 relative" style={{ minHeight: "50px" }}>
                     {/* Show each event in its corresponding timeslot */}
                     {dayEvents.map((event, index) => {
                       if (index < 2) {
@@ -121,20 +135,25 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
         </div>
 
         {/* Time slots container */}
-        <div className="time-slots-container" style={{ maxHeight: "calc(50vh - 200px)", overflowY: "auto", width: "calc(100% + 15px)" }}>
+        <div className="time-slots-container" style={{ maxHeight: "calc(50vh - 200px)", overflowY: "auto", width: "calc(100% + 15px)" }} ref={scrollContainerRef}>
           <div className="grid grid-cols-8 grid-auto-rows">
             {/* Left side timeline */}
             <div className="border-gray-300 -mt-3">
               {Array.from({ length: 24 }, (_, i) => (
                 <div key={i} className="flex gap-3 justify-end font-bold" style={{ height: "50px" }}>
                   {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}
-                  <hr className="border-gray-300 border-[0.5px] w-8 mt-3" />
+                  <div
+                    className={`mt-3 h-full border-gray-400 w-6
+                    ${i === 0 && "border-t-[0.5px]"}
+                    ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
+                  `}
+                  />
                 </div>
               ))}
             </div>
 
             {/* Time slots for each day */}
-            <div className="col-span-7 grid grid-cols-7 border-gray-300 border-[0.5px] border-t-0 border-b-0 border-r-0">
+            <div className="col-span-7 grid grid-cols-7">
               {weekDays.map((weekDay) => {
                 const dayEvents = getEventsForDay(weekDay);
 
@@ -150,10 +169,9 @@ export default function CalendarWeek({ currentDate, setCurrentDate, selectedDay,
                     {Array.from({ length: 24 }, (_, i) => (
                       <div
                         key={i}
-                        className={`border-[0.5px] border-gray-300 relative 
-                        ${"Sat" === format(weekDay, "eee") && "border-r-0"}
-                        ${i === 23 && "border-b-0"}
-                        ${i === 0 && "border-t-0"}
+                        className={`border-l-[0.5px] border-gray-400 relative
+                        ${i === 0 && "border-t-[0.5px]"} 
+                        ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
                       `}
                         style={{ height: "50px" }}
                       >
