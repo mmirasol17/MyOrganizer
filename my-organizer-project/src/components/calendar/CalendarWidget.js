@@ -27,8 +27,6 @@ export default function CalendarWidget({ user }) {
   const [eventAdd, setEventAdd] = useState(null);
   const [eventEdit, setEventEdit] = useState(null);
 
-  let day = new Date();
-
   // * Fetch holidays via the date.nager.at API
   useEffect(() => {
     const fetchHolidays = async () => {
@@ -121,6 +119,14 @@ export default function CalendarWidget({ user }) {
     };
     if (user) fetchSettings();
   }, [user, highlightWeekends]);
+
+  // * keep updating currentDate with an interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(new Date());
+    }, 1000); // 1 second
+    return () => clearInterval(interval);
+  }, []);
 
   // * functions for handling user events
   const handleDayClick = (day) => {

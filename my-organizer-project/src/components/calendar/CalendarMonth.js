@@ -113,6 +113,14 @@ export default function CalendarMonth({
 
                 {/* events */}
                 {dayEvents.map((event, index) => {
+                  // sort the events by time, the events with no time will be at the top
+                  dayEvents.sort((a, b) => {
+                    if (a.startTime === "" && b.startTime === "") {
+                      return 0;
+                    } else {
+                      return a.startTime.localeCompare(b.startTime);
+                    }
+                  });
                   // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
                   if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {
                     return (

@@ -1,8 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { format, isToday, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
 
-import { convertToRegularTime, shortenTime } from "./CalendarUtils";
-
 export default function CalendarWeek({
   currentDate,
   selectedDay,
@@ -14,6 +12,8 @@ export default function CalendarWeek({
   handleNewEventClick,
   handleEventClick,
 }) {
+  const [currentTime, setCurrentTime] = useState(new Date());
+
   // * week calendar date management
   const weekStart = startOfWeek(currentDate);
   const weekEnd = endOfWeek(weekStart);
@@ -32,6 +32,17 @@ export default function CalendarWeek({
     scrollContainer.addEventListener("scroll", handleScroll);
     return () => {
       scrollContainer.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentTime(new Date());
+      console.log("updating time:" + currentTime);
+    }, 60000); // Update time every minute (60000 milliseconds)
+
+    return () => {
+      clearInterval(interval);
     };
   }, []);
 
@@ -78,7 +89,7 @@ export default function CalendarWeek({
 
         {/* Day Labels */}
         <div className="grid grid-cols-8">
-          <div className="p-2 items-center"></div> {/* Empty column */}
+          <div /> {/* Empty column */}
           {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((dayOfWeek) => (
             <div key={dayOfWeek} className="p-2 pb-0 text-center">
               {/* if the day of week is today */}
@@ -113,8 +124,8 @@ export default function CalendarWeek({
           <div />
           {/* All day slot */}
           <div
-            className={`col-span-7 grid grid-cols-7 border-gray-400
-              ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px]"}
+            className={`col-span-7 grid grid-cols-7 border-gray-600
+              ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] shadow-sm z-10"}
             `}
           >
             {weekDays.map((weekDay) => {
@@ -132,7 +143,7 @@ export default function CalendarWeek({
                   style={{ backgroundColor: isWeekend ? "#E5E4E2" : "" }}
                 >
                   {/* Box for all day events of the current day */}
-                  <div className="border-l-[0.5px] border-gray-400 relative p-0.5" style={{ minHeight: "50px" }}>
+                  <div className={`border-l-[0.5px] border-gray-400 relative p-0.5`} style={{ minHeight: "50px" }}>
                     {/* events */}
                     {dayEvents.map((event, index) => {
                       // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
@@ -184,9 +195,9 @@ export default function CalendarWeek({
                   <div className={`${isScrollAtTop && i === 0 ? "absolute mr-9 z-10" : ""}`}> {`${(i % 12 === 0 ? 12 : i % 12).toString()} ${i < 12 ? "AM" : "PM"}`}</div>
                   <div
                     className={`mt-3 h-full border-gray-400 w-6
-                    ${i === 0 && "border-t-[0.5px]"}
-                    ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
-                  `}
+                      ${i === 0 && "border-t-[0.5px]"}
+                      ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
+                    `}
                   />
                 </div>
               ))}
@@ -197,6 +208,7 @@ export default function CalendarWeek({
               {weekDays.map((weekDay) => {
                 const dayEvents = getEventsForDay(weekDay);
                 const isWeekend = highlightWeekends && (weekDay.getDay() === 0 || weekDay.getDay() === 6);
+
                 return (
                   <div
                     key={weekDay.toString()}
@@ -206,18 +218,57 @@ export default function CalendarWeek({
                     }}
                   >
                     {/* Box timeslot for each hour of the day */}
-                    {Array.from({ length: 24 }, (_, i) => (
-                      <div
-                        key={i}
-                        className={`border-l-[0.5px] border-gray-400 relative
-                        ${i === 0 && "border-t-[0.5px]"} 
-                        ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
-                      `}
-                        style={{ height: "50px", backgroundColor: isWeekend ? "#E5E4E2" : "" }}
-                      >
-                        {i !== 0 && <div className="h-full absolute bg-gray-300" style={{ top: 0, left: 0, right: 0, zIndex: -1 }}></div>}
-                      </div>
-                    ))}
+                    {Array.from({ length: 24 }, (_, i) => {
+                      const isCurrentHour = isSameDay(weekDay, currentTime) && i === currentTime.getHours();
+                      return (
+                        <div
+                          key={i}
+                          className={`border-l-[0.5px] border-gray-400 relative
+                            ${i === 0 && "border-t-[0.5px]"} 
+                            ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
+                          `}
+                          style={{ height: "50px", backgroundColor: isWeekend ? "#E5E4E2" : "" }}
+                        >
+                          {/* if timeslot is current hour, calc where to put the line time indicator in the box */}
+                          {isCurrentHour && (
+                            <div className="absolute bg-blue-500" style={{ top: `${(currentTime.getMinutes() / 60) * 100}%`, left: 0, right: 0, height: "2px" }}>
+                              <div className="absolute bg-blue-500" style={{ top: "-1px", left: 0, right: 0, height: "2px" }}></div>
+                            </div>
+                          )}
+
+                          {/* if an event is in the current timeslot, show it */}
+                          {dayEvents.map((event) => {
+                            const eventStart = new Date(event.startTime);
+                            const eventEnd = new Date(event.endTime);
+                            const eventStartHour = eventStart.getHours();
+                            const eventStartMinute = eventStart.getMinutes();
+                            const eventEndHour = eventEnd.getHours();
+                            const eventEndMinute = eventEnd.getMinutes();
+
+                            // show the event with the proper height and position based on the start and end times
+                            if (i >= eventStartHour && i <= eventEndHour) {
+                              return (
+                                <div
+                                  key={event.id}
+                                  className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleEventClick(event);
+                                  }}
+                                  style={{
+                                    backgroundColor: event.color,
+                                    top: `${(eventStartMinute / 60) * 100}%`,
+                                    height: `${(eventEndHour - eventStartHour) * 50 + ((eventEndMinute - eventStartMinute) / 60) * 100}%`,
+                                  }}
+                                >
+                                  <div className="font-bold">{event.name}</div>
+                                </div>
+                              );
+                            }
+                          })}
+                        </div>
+                      );
+                    })}
                   </div>
                 );
               })}
