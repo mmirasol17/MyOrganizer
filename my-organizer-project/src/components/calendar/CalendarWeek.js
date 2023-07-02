@@ -61,7 +61,6 @@ export default function CalendarWeek({
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTime(new Date());
-      console.log("updating current time: " + currentTime);
     }, 1000);
     return () => {
       clearInterval(interval);
@@ -115,7 +114,7 @@ export default function CalendarWeek({
           {/* button to scroll to current time */}
           <div className="w-[95px] items-end justify-center flex">
             <svg
-              className="w-7 h-7 mb-2 transition hover:scale-110"
+              className="w-7 h-7 mb-2 transition hover:scale-110 cursor-pointer"
               onClick={scrollToCurrentTime}
               fill="#000000"
               viewBox="0 0 24 24"
@@ -137,14 +136,15 @@ export default function CalendarWeek({
                 const dayOfWeek = format(weekDay, "EEE");
                 const isToday = dayOfWeek === format(todaysDate, "EEE");
                 const isCurrentWeek = isSameWeek(currentDate, todaysDate);
+                const isSelectedDay = isSameDay(weekDay, selectedDay);
                 return (
                   <div key={dayOfWeek} className="p-2 pb-0 text-center">
                     <div
                       className={`font-bold transition hover:scale-110 cursor-pointer
-                    ${isToday && isCurrentWeek ? "text-blue-500" : "text-black"}
-                  `}
+                        ${isSelectedDay || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
+                      `}
                       onClick={() => {
-                        handleDayClick(weekDay);
+                        handleNewEventClick(weekDay);
                       }}
                     >
                       {dayOfWeek}
@@ -159,8 +159,17 @@ export default function CalendarWeek({
                 const isSelectedDay = isSameDay(weekDay, selectedDay);
                 const isToday = isSameDay(weekDay, todaysDate);
                 return (
-                  <div className="flex items-center justify-center w-full" key={weekDay.toString()}>
-                    <div className={`font-bold w-8 ${isToday ? "text-white bg-blue-500 rounded-full p-1" : ""} ${isSelectedDay ? "text-blue-500" : ""}`}>
+                  <div className="flex items-center justify-center w-full cursor-pointer" key={weekDay.toString()} onClick={() => handleNewEventClick(weekDay)}>
+                    <div
+                      className={`font-bold w-8 transition hover:scale-110 p-1 rounded-full
+                        ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
+                        ${isSelectedDay ? "text-blue-500" : ""}
+                      `}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDayClick(weekDay);
+                      }}
+                    >
                       {format(weekDay, "d")}
                     </div>
                   </div>
@@ -179,14 +188,17 @@ export default function CalendarWeek({
           {weekDays.map((weekDay) => {
             const allDayEvents = getEventsForDay(weekDay).filter((event) => event.startTime === "" && event.endTime === "");
             const isWeekend = highlightWeekends && (weekDay.getDay() === 0 || weekDay.getDay() === 6);
+            const isEventAddUntimed = isSameDay(weekDay, eventAdd) && eventAdd.getHours() === 0 && eventAdd.getMinutes() === 0;
             return (
               <div
                 key={weekDay.toString()}
-                className="text-center h-full"
+                className={`text-center h-full hover:bg-gray-200 cursor-pointer
+                  ${isEventAddUntimed ? "bg-blue-200" : ""}
+                `}
                 onClick={() => {
-                  handleDayClick(weekDay);
+                  handleNewEventClick(weekDay);
                 }}
-                style={{ backgroundColor: isWeekend ? "#E5E4E2" : "" }}
+                style={{ backgroundColor: isWeekend && !isEventAddUntimed ? "#E5E4E2" : "" }}
               >
                 <div className={`border-l-[0.5px] border-gray-400 relative p-0.5`} style={{ minHeight: "50px" }}>
                   {allDayEvents.map((event, index) => {
@@ -259,16 +271,22 @@ export default function CalendarWeek({
                     }}
                   >
                     {/* grid box for each hour of the current day */}
-                    {Array.from({ length: 24 }, (_, i) => {
-                      const isCurrentHour = isSameDay(weekDay, currentTime) && i === currentTime.getHours();
+                    {Array.from({ length: 24 }, (_, hr) => {
+                      const isCurrentHour = isSameDay(weekDay, currentTime) && hr === currentTime.getHours();
+                      const isEventAddTimed = isSameDay(weekDay, eventAdd) && eventAdd.getHours() === hr && eventAdd.getMinutes() === 0;
                       return (
                         <div
-                          key={i}
+                          key={hr}
                           className={`border-l-[0.5px] border-gray-400 relative
-                            ${i === 0 && "border-t-[0.5px]"} 
-                            ${i === 23 ? "border-b-0" : "border-b-[0.5px]"}
+                            ${hr === 0 && "border-t-[0.5px]"} 
+                            ${hr === 23 ? "border-b-0" : "border-b-[0.5px]"}
+                            ${isEventAddTimed ? "bg-blue-200" : ""}
                           `}
-                          style={{ height: "50px", backgroundColor: isWeekend ? "#E5E4E2" : "" }}
+                          style={{ height: "50px", backgroundColor: isWeekend && !isEventAddTimed ? "#E5E4E2" : "" }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleNewEventClick(weekDay);
+                          }}
                         >
                           {/* if timeslot is current hour, calc where to put current time line */}
                           {isCurrentHour && (
@@ -286,7 +304,7 @@ export default function CalendarWeek({
                             const eventEndMinute = eventEnd.getMinutes();
 
                             // show the event with the proper height and position based on the start and end times
-                            if (i >= eventStartHour && i <= eventEndHour) {
+                            if (hr >= eventStartHour && hr <= eventEndHour) {
                               return (
                                 <div
                                   key={event.id}
