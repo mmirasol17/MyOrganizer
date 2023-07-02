@@ -1,8 +1,9 @@
 import React from "react";
-import { format, startOfMonth, endOfMonth, startOfWeek, isToday, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addDays, isSameMonth, isSameDay } from "date-fns";
 import { convertToRegularTime, shortenTime } from "./CalendarUtils";
 
 export default function CalendarMonth({
+  todaysDate,
   currentDate,
   selectedDay,
   eventAdd,
@@ -27,14 +28,15 @@ export default function CalendarMonth({
     setCurrentDate(addDays(monthEnd, 1));
   };
 
+  // * get all days in the month
   const days = [];
   let day = monthStartDate;
-
   while (day <= monthEndDate) {
     days.push(day);
     day = addDays(day, 1);
   }
 
+  // * month calendar UI
   return (
     <div className="w-full p-2 text-center overflow-y-auto no-scrollbar">
       <div className="flex flex-col">
@@ -73,17 +75,20 @@ export default function CalendarMonth({
         {/* grid of all month days */}
         <div className="grid grid-cols-7">
           {days.map((day, index) => {
-            // Add index as the second argument
+            // fetch event data for the day
             const dayEvents = getEventsForDay(day);
+            // data required for styling calendar elements
+            const isToday = isSameDay(day, todaysDate);
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
             const isEventAdd = isSameDay(day, eventAdd);
+            // data required for styling calendar grid
             const isTopRow = index < 7;
             const isMiddleColumn = index % 7 === 0;
             const isWeekend = highlightWeekends && (index % 7 === 0 || index % 7 === 6);
             return (
               <div
-                key={`${day.toString()}-${index}`} // Assign a unique key using the date and index
+                key={day.toString()} // Assign a unique key using the date and index
                 className={`p-0.5 h-[92px] hover:bg-gray-200 cursor-pointer text-center border-gray-400
                   ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} 
                   ${isSelectedDay || isEventAdd ? "bg-blue-200" : "bg-white"}
@@ -99,9 +104,10 @@ export default function CalendarMonth({
               >
                 <div className="w-full cursor-pointer flex items-center justify-center">
                   <div
-                    className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 ${
-                      isToday(day) ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"
-                    } ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}`}
+                    className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 
+                      ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
+                      ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}
+                    `}
                     onClick={(e) => {
                       e.stopPropagation();
                       handleDayClick(day);
@@ -111,7 +117,6 @@ export default function CalendarMonth({
                   </div>
                 </div>
 
-                {/* events */}
                 {dayEvents.map((event, index) => {
                   // sort the events by time, the events with no time will be at the top
                   dayEvents.sort((a, b) => {
@@ -139,7 +144,6 @@ export default function CalendarMonth({
                             &nbsp;
                           </>
                         )}
-
                         <div className="font-bold">{event.name}</div>
                       </div>
                     );

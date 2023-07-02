@@ -15,6 +15,7 @@ export default function CalendarWidget({ user }) {
   const [highlightWeekends, setHighlightWeekends] = useState(false);
 
   // * calendar date management
+  const [todaysDate, setTodaysDate] = useState(new Date());
   const [currentDate, setCurrentDate] = useState(new Date());
   const [events, setEvents] = useState([]);
 
@@ -123,7 +124,7 @@ export default function CalendarWidget({ user }) {
   // * keep updating currentDate with an interval
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentDate(new Date());
+      setTodaysDate(new Date());
     }, 1000); // 1 second
     return () => clearInterval(interval);
   }, []);
@@ -160,6 +161,7 @@ export default function CalendarWidget({ user }) {
       {/* show month calendar if user chooses to see the month view mode */}
       {viewMode === "month" && (
         <CalendarMonth
+          todaysDate={todaysDate}
           currentDate={currentDate}
           selectedDay={selectedDay}
           eventAdd={eventAdd}
@@ -175,6 +177,7 @@ export default function CalendarWidget({ user }) {
       {/* show week calendar if user chooses to see the week view mode */}
       {viewMode === "week" && (
         <CalendarWeek
+          todaysDate={todaysDate}
           currentDate={currentDate}
           selectedDay={selectedDay}
           eventAdd={eventAdd}
