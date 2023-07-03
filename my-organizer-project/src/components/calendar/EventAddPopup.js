@@ -340,7 +340,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                     value={eventName}
                     onChange={handleEventNameChange}
                     className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 
-                              ${!validEventName && "ring-2 ring-red-500"}`}
+                      ${!validEventName && "ring-2 ring-red-500"}
+                    `}
                     placeholder="New Event Name"
                   />
                 </div>
@@ -358,7 +359,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                 value={eventDate}
                 onChange={handleEventDateChange}
                 className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text 
-                          ${!validEventDate && "ring-2 ring-red-500"}`}
+                  ${!validEventDate && "ring-2 ring-red-500"}
+                `}
                 placeholder="New Event Date"
               />
             </div>
@@ -375,7 +377,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   value={eventStartTime}
                   onChange={handleEventStartTimeChange}
                   className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text
-                            ${!validEventStartTime && "ring-2 ring-red-500"}`}
+                    ${!validEventStartTime && "ring-2 ring-red-500"}
+                  `}
                   placeholder="Start Time"
                 />
               </div>
@@ -392,7 +395,8 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
                   value={eventEndTime}
                   onChange={handleEventEndTimeChange}
                   className={`border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 cursor-text
-                  ${!validEventEndTime && "ring-2 ring-red-500"}`}
+                    ${!validEventEndTime && "ring-2 ring-red-500"}
+                  `}
                   placeholder="End Time"
                 />
               </div>

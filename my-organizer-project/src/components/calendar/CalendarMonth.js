@@ -6,6 +6,7 @@ export default function CalendarMonth({
   todaysDate,
   currentDate,
   selectedDay,
+  selectedEvent,
   eventAdd,
   highlightWeekends,
   setCurrentDate,
@@ -105,7 +106,7 @@ export default function CalendarMonth({
                 <div className="w-full cursor-pointer flex items-center justify-center">
                   <div
                     className={`font-bold w-6 text-sm p-0.5 mb-0.5 rounded-full transition hover:scale-110 
-                      ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
+                      ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-[#B6B6B6]"} 
                       ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}
                     `}
                     onClick={(e) => {
@@ -118,6 +119,7 @@ export default function CalendarMonth({
                 </div>
 
                 {dayEvents.map((event, index) => {
+                  const isEventSelected = event.id === selectedEvent?.id;
                   // sort the events by time, the events with no time will be at the top
                   dayEvents.sort((a, b) => {
                     if (a.startTime === "" && b.startTime === "") {
@@ -130,7 +132,9 @@ export default function CalendarMonth({
                   if ((index < 4 && dayEvents.length <= 4) || (index < 3 && dayEvents.length > 4)) {
                     return (
                       <div
-                        className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5"
+                        className={`transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5
+                          ${isEventSelected ? "scale-[102%]" : ""}
+                        `}
                         key={event.id}
                         onClick={(e) => {
                           e.stopPropagation();
@@ -152,10 +156,11 @@ export default function CalendarMonth({
                   else if (dayEvents.length > 4 && index === 4) {
                     return (
                       <div
-                        className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center hover:bg-gray-200 text-xs/3 px-0.5 mb-0.5"
+                        className="transition hover:scale-[105%] overflow-hidden overflow-ellipsis whitespace-nowrap justify-center text-xs/3 pb-1 px-0.5 mb-0.5"
                         key={dayEvents.length}
                         onClick={(e) => {
                           e.stopPropagation();
+                          handleDayClick(day);
                         }}
                       >
                         <div className="font-bold text-center">+{dayEvents.length - 3} more</div>

@@ -11,7 +11,7 @@ import EventAddPopup from "./EventAddPopup";
 
 export default function CalendarWidget({ user }) {
   // * calendar settings
-  const [viewMode, setViewMode] = useState("month");
+  const [viewMode, setViewMode] = useState("");
   const [highlightWeekends, setHighlightWeekends] = useState(false);
 
   // * calendar date management
@@ -62,7 +62,7 @@ export default function CalendarWidget({ user }) {
     fetchHolidays();
   }, [currentDate]);
 
-  // * Fetch events from Firestore
+  // * fetch events from Firestore
   useEffect(() => {
     const fetchEvents = async () => {
       try {
@@ -95,7 +95,7 @@ export default function CalendarWidget({ user }) {
     }
   }, [user, events]);
 
-  // * fetch the highlight weekends setting from Firestore
+  // * fetch the calendar settings from Firestore
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -164,6 +164,7 @@ export default function CalendarWidget({ user }) {
           todaysDate={todaysDate}
           currentDate={currentDate}
           selectedDay={selectedDay}
+          selectedEvent={selectedEvent}
           eventAdd={eventAdd}
           highlightWeekends={highlightWeekends}
           setCurrentDate={setCurrentDate}
@@ -180,6 +181,7 @@ export default function CalendarWidget({ user }) {
           todaysDate={todaysDate}
           currentDate={currentDate}
           selectedDay={selectedDay}
+          selectedEvent={selectedEvent}
           eventAdd={eventAdd}
           highlightWeekends={highlightWeekends}
           setCurrentDate={setCurrentDate}

@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay } from "date-fns";
+import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay, toLocaleTimeString } from "date-fns";
 
 export default function CalendarWeek({
   todaysDate,
   currentDate,
   selectedDay,
+  selectedEvent,
   eventAdd,
   highlightWeekends,
   getEventsForDay,
@@ -46,7 +47,28 @@ export default function CalendarWeek({
     const currentMinute = currentTime.getMinutes();
     const currentHourElement = scrollContainer.querySelector(`div:nth-child(${currentHour + 2})`);
     if (currentHourElement) {
-      scrollContainer.scrollTop = currentHourElement.offsetTop + (currentMinute / 60) * 50 - 100;
+      const containerHeight = scrollContainer.offsetHeight;
+      const currentHourElementTop = currentHourElement.offsetTop + (currentMinute / 60) * 50;
+      const currentHourElementBottom = currentHourElementTop + 50;
+
+      // Calculate the scroll position based on the current hour's position
+      let scrollPosition;
+      if (currentHourElementTop < scrollContainer.scrollTop) {
+        // Scroll up if the current hour is above the visible area
+        scrollPosition = currentHourElementTop;
+      } else if (currentHourElementBottom > scrollContainer.scrollTop + containerHeight) {
+        // Scroll down if the current hour is below the visible area
+        scrollPosition = currentHourElementBottom - containerHeight;
+      } else {
+        // No need to scroll if the current hour is already visible
+        return;
+      }
+
+      // Scroll to the calculated position
+      scrollContainer.scrollTo({
+        top: scrollPosition,
+        behavior: "smooth",
+      });
     }
   };
 
@@ -66,6 +88,13 @@ export default function CalendarWeek({
       clearInterval(interval);
     };
   }, []);
+
+  // * scroll to the current time if the current week is the current week
+  useEffect(() => {
+    if (isSameWeek(currentTime, currentDate)) {
+      scrollToCurrentTime();
+    }
+  }, [currentDate]);
 
   // * For changing weeks on the week calendar
   const handlePrevWeek = () => {
@@ -114,7 +143,7 @@ export default function CalendarWeek({
           {/* button to scroll to current time */}
           <div className="w-[95px] items-end justify-center flex">
             <svg
-              className="w-7 h-7 mb-2 transition hover:scale-110 cursor-pointer"
+              className="w-[25px] h-[25px] transition hover:scale-110 cursor-pointer"
               onClick={scrollToCurrentTime}
               fill="#000000"
               viewBox="0 0 24 24"
@@ -137,11 +166,12 @@ export default function CalendarWeek({
                 const isToday = dayOfWeek === format(todaysDate, "EEE");
                 const isCurrentWeek = isSameWeek(currentDate, todaysDate);
                 const isSelectedDay = isSameDay(weekDay, selectedDay);
+                const isEventAdd = isSameDay(weekDay, eventAdd);
                 return (
                   <div key={dayOfWeek} className="p-2 pb-0 text-center">
                     <div
                       className={`font-bold transition hover:scale-110 cursor-pointer
-                        ${isSelectedDay || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
+                        ${isSelectedDay || isEventAdd || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
                       `}
                       onClick={() => {
                         handleNewEventClick(weekDay);
@@ -158,12 +188,13 @@ export default function CalendarWeek({
               {weekDays.map((weekDay) => {
                 const isSelectedDay = isSameDay(weekDay, selectedDay);
                 const isToday = isSameDay(weekDay, todaysDate);
+                const isEventAdd = isSameDay(weekDay, eventAdd);
                 return (
                   <div className="flex items-center justify-center w-full cursor-pointer" key={weekDay.toString()} onClick={() => handleNewEventClick(weekDay)}>
                     <div
                       className={`font-bold w-8 transition hover:scale-110 p-1 rounded-full
                         ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
-                        ${isSelectedDay ? "text-blue-500" : ""}
+                        ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}
                       `}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -188,11 +219,11 @@ export default function CalendarWeek({
           {weekDays.map((weekDay) => {
             const allDayEvents = getEventsForDay(weekDay).filter((event) => event.startTime === "" && event.endTime === "");
             const isWeekend = highlightWeekends && (weekDay.getDay() === 0 || weekDay.getDay() === 6);
-            const isEventAddUntimed = isSameDay(weekDay, eventAdd) && eventAdd.getHours() === 0 && eventAdd.getMinutes() === 0;
+            const isEventAddUntimed = isSameDay(weekDay, eventAdd) && !eventAdd.startTime && !eventAdd.endTime;
             return (
               <div
                 key={weekDay.toString()}
-                className={`text-center h-full hover:bg-gray-200 cursor-pointer
+                className={`text-center h-full hover:bg-gray-200 cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[50px]
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
@@ -200,41 +231,43 @@ export default function CalendarWeek({
                 }}
                 style={{ backgroundColor: isWeekend && !isEventAddUntimed ? "#E5E4E2" : "" }}
               >
-                <div className={`border-l-[0.5px] border-gray-400 relative p-0.5`} style={{ minHeight: "50px" }}>
-                  {allDayEvents.map((event, index) => {
-                    // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
-                    if ((index < 4 && allDayEvents.length <= 4) || (index < 3 && allDayEvents.length > 4)) {
-                      return (
-                        <div
-                          className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5"
-                          key={event.id}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleEventClick(event);
-                          }}
-                          style={{ backgroundColor: event.color }}
-                        >
-                          <div className="font-bold">{event.name}</div>
-                        </div>
-                      );
-                    }
-                    // if there are more than 4 events, show a button to show the rest
-                    else if (allDayEvents.length > 4 && index === 4) {
-                      return (
-                        <div
-                          className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center hover:bg-gray-200 text-xs/3 px-0.5 mb-0.5"
-                          key={allDayEvents.length}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                          }}
-                        >
-                          <div className="font-bold text-center">+{allDayEvents.length - 3} more</div>
-                        </div>
-                      );
-                    }
-                    return null;
-                  })}
-                </div>
+                {allDayEvents.map((event, index) => {
+                  const isEventSelected = selectedEvent && selectedEvent.id === event.id;
+                  // only show 4 events max, but if more than 4, show 3 events and a button to show the rest
+                  if ((index < 4 && allDayEvents.length <= 4) || (index < 3 && allDayEvents.length > 4)) {
+                    return (
+                      <div
+                        className={`transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5
+                          ${isEventSelected ? "scale-[102%]" : ""}
+                        `}
+                        key={event.id}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleEventClick(event);
+                        }}
+                        style={{ backgroundColor: event.color }}
+                      >
+                        <div className="font-bold">{event.name}</div>
+                      </div>
+                    );
+                  }
+                  // if there are more than 4 events, show a button to show the rest
+                  else if (allDayEvents.length > 4 && index === 4) {
+                    return (
+                      <div
+                        className="transition hover:scale-[105%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex justify-center text-xs/3 px-0.5 mb-0.5"
+                        key={allDayEvents.length}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDayClick(weekDay);
+                        }}
+                      >
+                        <div className="font-bold text-center">+{allDayEvents.length - 3} more</div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })}
               </div>
             );
           })}
@@ -273,7 +306,7 @@ export default function CalendarWeek({
                     {/* grid box for each hour of the current day */}
                     {Array.from({ length: 24 }, (_, hr) => {
                       const isCurrentHour = isSameDay(weekDay, currentTime) && hr === currentTime.getHours();
-                      const isEventAddTimed = isSameDay(weekDay, eventAdd) && eventAdd.getHours() === hr && eventAdd.getMinutes() === 0;
+                      const isEventAddTimed = isSameDay(weekDay, eventAdd) && eventAdd?.startTime && eventAdd?.endTime;
                       return (
                         <div
                           key={hr}
@@ -285,7 +318,11 @@ export default function CalendarWeek({
                           style={{ height: "50px", backgroundColor: isWeekend && !isEventAddTimed ? "#E5E4E2" : "" }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleNewEventClick(weekDay);
+                            handleNewEventClick({
+                              ...weekDay,
+                              startTime: `${hr}:00`,
+                              endTime: `${hr + 1}:00`,
+                            });
                           }}
                         >
                           {/* if timeslot is current hour, calc where to put current time line */}
