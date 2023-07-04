@@ -44,10 +44,12 @@ export default function EventAddPopup({ user, eventAdd, setEventAdd, setEvents }
     setValidEventDate(validateEventDate(e));
   };
   const handleEventStartTimeChange = (e) => {
+    eventAdd.startTime = e.target.value;
     setEventStartTime(e.target.value);
     setValidEventStartTime(validateEventStartTime(e));
   };
   const handleEventEndTimeChange = (e) => {
+    eventAdd.endTime = e.target.value;
     setEventEndTime(e.target.value);
     setValidEventEndTime(validateEventEndTime(e));
   };

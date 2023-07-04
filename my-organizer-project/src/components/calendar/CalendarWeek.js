@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay, toLocaleTimeString } from "date-fns";
+import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay, addHours } from "date-fns";
 
 export default function CalendarWeek({
   todaysDate,
@@ -223,7 +223,7 @@ export default function CalendarWeek({
             return (
               <div
                 key={weekDay.toString()}
-                className={`text-center h-full hover:bg-gray-200 cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[50px]
+                className={`text-center h-full hover:bg-gray-200 cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[24px]
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
@@ -273,7 +273,7 @@ export default function CalendarWeek({
           })}
         </div>
 
-        <div style={{ maxHeight: "calc(50vh - 200px)", overflowY: "auto", width: "calc(100% + 15px)", display: "flex" }} ref={scrollContainerRef}>
+        <div style={{ maxHeight: "calc(50vh - 220px)", overflowY: "auto", width: "calc(100% + 15px)", display: "flex" }} ref={scrollContainerRef}>
           {/* left side timeline to show time labels of each grid box */}
           <div className="-mt-3 w-[95px]">
             {Array.from({ length: 24 }, (_, i) => (
@@ -306,23 +306,26 @@ export default function CalendarWeek({
                     {/* grid box for each hour of the current day */}
                     {Array.from({ length: 24 }, (_, hr) => {
                       const isCurrentHour = isSameDay(weekDay, currentTime) && hr === currentTime.getHours();
-                      const isEventAddTimed = isSameDay(weekDay, eventAdd) && eventAdd?.startTime && eventAdd?.endTime;
+                      const isInNewEventRange =
+                        eventAdd && isSameDay(weekDay, eventAdd) && hr >= Number(eventAdd.startTime.slice(0, 2)) && hr < Number(eventAdd.endTime.slice(0, 2));
                       return (
                         <div
                           key={hr}
                           className={`border-l-[0.5px] border-gray-400 relative
                             ${hr === 0 && "border-t-[0.5px]"} 
                             ${hr === 23 ? "border-b-0" : "border-b-[0.5px]"}
-                            ${isEventAddTimed ? "bg-blue-200" : ""}
+                            ${isInNewEventRange ? "bg-blue-200" : ""}
                           `}
-                          style={{ height: "50px", backgroundColor: isWeekend && !isEventAddTimed ? "#E5E4E2" : "" }}
+                          style={{ height: "50px", backgroundColor: isWeekend && !isInNewEventRange ? "#E5E4E2" : "" }}
                           onClick={(e) => {
                             e.stopPropagation();
-                            handleNewEventClick({
-                              ...weekDay,
-                              startTime: `${hr}:00`,
-                              endTime: `${hr + 1}:00`,
-                            });
+                            const startTime = String(hr).padStart(2, "0") + ":00";
+                            const endTime = String(hr + 1).padStart(2, "0") + ":00";
+
+                            weekDay.startTime = startTime;
+                            weekDay.endTime = endTime;
+
+                            handleNewEventClick(weekDay);
                           }}
                         >
                           {/* if timeslot is current hour, calc where to put current time line */}
