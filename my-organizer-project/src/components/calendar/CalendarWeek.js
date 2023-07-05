@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import { format, startOfWeek, endOfWeek, addDays, isSameWeek, isSameDay, addHours } from "date-fns";
 
+import { convertToRegularTime, shortenTime } from "./CalendarUtils";
+
 export default function CalendarWeek({
   todaysDate,
   currentDate,
@@ -174,6 +176,8 @@ export default function CalendarWeek({
                         ${isSelectedDay || isEventAdd || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
                       `}
                       onClick={() => {
+                        weekDay.startTime = "";
+                        weekDay.endTime = "";
                         handleNewEventClick(weekDay);
                       }}
                     >
@@ -190,7 +194,15 @@ export default function CalendarWeek({
                 const isToday = isSameDay(weekDay, todaysDate);
                 const isEventAdd = isSameDay(weekDay, eventAdd);
                 return (
-                  <div className="flex items-center justify-center w-full cursor-pointer" key={weekDay.toString()} onClick={() => handleNewEventClick(weekDay)}>
+                  <div
+                    className="flex items-center justify-center w-full cursor-pointer"
+                    key={weekDay.toString()}
+                    onClick={() => {
+                      weekDay.startTime = "";
+                      weekDay.endTime = "";
+                      handleNewEventClick(weekDay);
+                    }}
+                  >
                     <div
                       className={`font-bold w-8 transition hover:scale-110 p-1 rounded-full
                         ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
@@ -227,6 +239,8 @@ export default function CalendarWeek({
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
+                  weekDay.startTime = "";
+                  weekDay.endTime = "";
                   handleNewEventClick(weekDay);
                 }}
                 style={{ backgroundColor: isWeekend && !isEventAddUntimed ? "#E5E4E2" : "" }}
@@ -334,35 +348,48 @@ export default function CalendarWeek({
                               <div className="absolute bg-blue-500" style={{ top: "-1px", left: 0, right: 0, height: "2px" }}></div>
                             </div>
                           )}
-                          {/* if an event is in the current timeslot, show it */}
+                          {/* if an event overlaps with the current timeslot, show it */}
                           {dayEvents.map((event) => {
-                            const eventStart = new Date(event.startTime);
-                            const eventEnd = new Date(event.endTime);
-                            const eventStartHour = eventStart.getHours();
-                            const eventStartMinute = eventStart.getMinutes();
-                            const eventEndHour = eventEnd.getHours();
-                            const eventEndMinute = eventEnd.getMinutes();
+                            if (event.startTime === "" && event.endTime === "") return null;
+                            const eventStartHour = Number(event.startTime.slice(0, 2));
+                            const eventStartMinute = Number(event.startTime.slice(3, 5));
+                            const eventEndHour = Number(event.endTime.slice(0, 2));
+                            const eventEndMinute = Number(event.endTime.slice(3, 5));
 
-                            // show the event with the proper height and position based on the start and end times
-                            if (hr >= eventStartHour && hr <= eventEndHour) {
+                            const isInStartingTimeslot = hr >= eventStartHour && hr <= eventStartHour;
+
+                            if (isInStartingTimeslot) {
+                              const eventTop = (hr - eventStartHour + eventStartMinute / 60) * 100;
+                              let eventHeight;
+                              if (eventEndHour < eventStartHour || (eventEndHour === eventStartHour && eventEndMinute < eventStartMinute)) {
+                                eventHeight = (24 - eventStartHour + eventEndHour + (eventEndMinute - eventStartMinute) / 60) * 99;
+                              } else {
+                                eventHeight = (eventEndHour - eventStartHour + (eventEndMinute - eventStartMinute) / 60) * 99;
+                              }
                               return (
                                 <div
                                   key={event.id}
-                                  className="transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5"
+                                  className="transition text-left hover:scale-[102%] border-l-4 border-blue-300 rounded-r-md overflow-hidden overflow-ellipsis whitespace-nowrap text-xs py-[0.9px] px-0.5 mb-0.5 z-20"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleEventClick(event);
                                   }}
                                   style={{
                                     backgroundColor: event.color,
-                                    top: `${(eventStartMinute / 60) * 100}%`,
-                                    height: `${(eventEndHour - eventStartHour) * 50 + ((eventEndMinute - eventStartMinute) / 60) * 100}%`,
+                                    top: `${eventTop}%`,
+                                    height: `${eventHeight}%`,
+                                    width: "95%",
                                   }}
                                 >
                                   <div className="font-bold">{event.name}</div>
+                                  {/* show the start and end time of the event with the name */}
+                                  <div className="flex gap-1">
+                                    {shortenTime(convertToRegularTime(event.startTime))}-{shortenTime(convertToRegularTime(event.endTime))}
+                                  </div>
                                 </div>
                               );
                             }
+                            return null;
                           })}
                         </div>
                       );
