@@ -21,7 +21,6 @@ export default function CalendarWidget({ user }) {
 
   // * popup management for a calendar day
   const [selectedDay, setSelectedDay] = useState(null);
-  const [dayEdit, setDayEdit] = useState(null);
 
   // * popup management for a calendar event
   const [selectedEvent, setSelectedEvent] = useState(null);
@@ -136,6 +135,9 @@ export default function CalendarWidget({ user }) {
   const handleEventClick = (event) => {
     setSelectedEvent(event);
   };
+  const handleEventEditClick = (event) => {
+    setEventEdit(event);
+  };
   const handleNewEventClick = (day) => {
     setEventAdd(day);
   };
@@ -194,7 +196,13 @@ export default function CalendarWidget({ user }) {
       )}
 
       {/* day popup that will show up if a day is selected */}
-      <DayPopup selectedDay={selectedDay} getEventsForDay={getEventsForDay} setSelectedDay={setSelectedDay} setDayEdit={setDayEdit} />
+      <DayPopup
+        selectedDay={selectedDay}
+        getEventsForDay={getEventsForDay}
+        setSelectedDay={setSelectedDay}
+        handleEventClick={handleEventClick}
+        handleEventEditClick={handleEventEditClick}
+      />
 
       {/* event popup that will show up if an event is selected */}
       <EventInfoPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />

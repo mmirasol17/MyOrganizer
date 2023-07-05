@@ -48,13 +48,16 @@ export default function CalendarWeek({
     const currentHour = currentTime.getHours();
     const currentMinute = currentTime.getMinutes();
     const currentHourElement = scrollContainer.querySelector(`div:nth-child(${currentHour + 2})`);
+
+    // if the current hour exists in this week, scroll to it
     if (currentHourElement) {
       const containerHeight = scrollContainer.offsetHeight;
       const currentHourElementTop = currentHourElement.offsetTop + (currentMinute / 60) * 50;
       const currentHourElementBottom = currentHourElementTop + 50;
 
-      // Calculate the scroll position based on the current hour's position
+      // calculate the scroll position based on the current hour's position
       let scrollPosition;
+
       if (currentHourElementTop < scrollContainer.scrollTop) {
         // Scroll up if the current hour is above the visible area
         scrollPosition = currentHourElementTop;
@@ -239,7 +242,7 @@ export default function CalendarWeek({
               <div
                 key={weekDay.toString()}
                 className={`
-                  text-center h-full cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[24px]
+                  text-center h-full cursor-pointer border-l-[0.5px] border-gray-400 relative py-0.5 min-h-[24px]
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
@@ -331,7 +334,7 @@ export default function CalendarWeek({
                         <div
                           key={hr}
                           className={`
-                            border-l-[0.5px] border-gray-400 relative cursor-pointer p-0.5
+                            border-l-[0.5px] border-gray-400 relative cursor-pointer
                             ${hr === 0 && "border-t-[0.5px]"} 
                             ${hr === 23 ? "border-b-0" : "border-b-[0.5px]"}
                             ${isInNewEventRange ? "bg-blue-200" : ""}
