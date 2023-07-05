@@ -138,8 +138,8 @@ export default function CalendarWidget({ user }) {
   const handleEventEditClick = (event) => {
     setEventEdit(event);
   };
-  const handleNewEventClick = (day) => {
-    setEventAdd(day);
+  const handleNewEventClick = (event) => {
+    setEventAdd(event);
   };
 
   // * get events for a specific day
@@ -168,6 +168,7 @@ export default function CalendarWidget({ user }) {
           selectedDay={selectedDay}
           selectedEvent={selectedEvent}
           eventAdd={eventAdd}
+          eventEdit={eventEdit}
           highlightWeekends={highlightWeekends}
           setCurrentDate={setCurrentDate}
           setEvents={setEvents}
@@ -204,11 +205,11 @@ export default function CalendarWidget({ user }) {
         handleEventEditClick={handleEventEditClick}
       />
 
-      {/* event popup that will show up if an event is selected */}
+      {/* event info popup for selected events */}
       <EventInfoPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />
 
-      {/* event add popup that shows up if user wants to create new event for a day */}
-      <EventPopup user={user} eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
+      {/* event popup for creating new event or editing existing events */}
+      <EventPopup user={user} eventAdd={eventAdd} eventEdit={eventEdit} setEventAdd={setEventAdd} setEventEdit={setEventEdit} setEvents={setEvents} />
     </Widget>
   );
 }

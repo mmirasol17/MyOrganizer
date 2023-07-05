@@ -89,7 +89,7 @@ export default function DayPopup({ selectedDay, getEventsForDay, setSelectedDay,
                         </div>
                         <div className="flex items-center gap-3">
                           <div
-                            className="transition hover:scale-105"
+                            className="transition hover:scale-110"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDayPopupClose();
@@ -112,7 +112,7 @@ export default function DayPopup({ selectedDay, getEventsForDay, setSelectedDay,
                             </svg>
                           </div>
                           <div
-                            className="transition hover:scale-105"
+                            className="transition hover:scale-110"
                             onClick={(e) => {
                               e.stopPropagation();
                               handleDayPopupClose();

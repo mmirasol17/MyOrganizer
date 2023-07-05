@@ -180,9 +180,9 @@ export default function CalendarWeek({
                         ${isSelectedDay || isEventAdd || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
                       `}
                       onClick={() => {
-                        weekDay.startTime = "";
-                        weekDay.endTime = "";
-                        handleNewEventClick(weekDay);
+                        handleNewEventClick({
+                          date: weekDay,
+                        });
                       }}
                     >
                       {dayOfWeek}
@@ -202,9 +202,9 @@ export default function CalendarWeek({
                     className="flex items-center justify-center w-full cursor-pointer"
                     key={weekDay.toString()}
                     onClick={() => {
-                      weekDay.startTime = "";
-                      weekDay.endTime = "";
-                      handleNewEventClick(weekDay);
+                      handleNewEventClick({
+                        date: weekDay,
+                      });
                     }}
                   >
                     <div
@@ -246,9 +246,9 @@ export default function CalendarWeek({
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
-                  weekDay.startTime = "";
-                  weekDay.endTime = "";
-                  handleNewEventClick(weekDay);
+                  handleNewEventClick({
+                    date: weekDay,
+                  });
                 }}
                 style={{ backgroundColor: isWeekend && !isEventAddUntimed ? "#E5E4E2" : "" }}
               >
@@ -344,9 +344,11 @@ export default function CalendarWeek({
                             e.stopPropagation();
                             const startTime = String(hr).padStart(2, "0") + ":00";
                             const endTime = String(hr + 1).padStart(2, "0") + ":00";
-                            weekDay.startTime = startTime;
-                            weekDay.endTime = endTime;
-                            handleNewEventClick(weekDay);
+                            handleNewEventClick({
+                              date: weekDay,
+                              startTime,
+                              endTime,
+                            });
                           }}
                         >
                           {/* if timeslot is current hour, calc where to put current time line */}

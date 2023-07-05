@@ -4,7 +4,9 @@ import { db, collection, writeBatch, doc } from "../../firebase/FirebaseConfig";
 import Popup from "../ui/Popup";
 import { eventColors } from "./EventColors";
 
-export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
+export default function EventPopup({ user, eventAdd, eventEdit, setEventAdd, setEventEdit, setEvents }) {
+  let event = eventAdd ?? eventEdit;
+
   const [show, setShow] = useState(false);
   const [showColorMenu, setShowColorMenu] = useState(false);
   const colorButtonRef = useRef(null);
@@ -33,28 +35,37 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
 
   // * functions to handle state changes
   const handleEventColorChange = (color) => {
+    event.color = color;
     setEventColor(color);
   };
   const handleEventNameChange = (e) => {
+    event.name = e.target.value;
     setEventName(e.target.value);
-    setValidEventName(validateEventName(e));
+    setValidEventName(validateRequiredInputs(e));
   };
   const handleEventDateChange = (e) => {
+    event.date = parseISO(e.target.value);
     setEventDate(e.target.value);
-    setValidEventDate(validateEventDate(e));
+    setValidEventDate(validateRequiredInputs(e));
   };
   const handleEventStartTimeChange = (e) => {
-    eventAdd.startTime = e.target.value;
+    event.startTime = e.target.value;
     setEventStartTime(e.target.value);
-    setValidEventStartTime(validateEventStartTime(e));
+    setValidEventStartTime(validateRequiredInputs(e));
   };
   const handleEventEndTimeChange = (e) => {
-    eventAdd.endTime = e.target.value;
+    event.endTime = e.target.value;
     setEventEndTime(e.target.value);
-    setValidEventEndTime(validateEventEndTime(e));
+    setValidEventEndTime(validateRequiredInputs(e));
   };
   const handleEventDescriptionChange = (e) => {
+    event.description = e.target.value;
     setEventDescription(e.target.value);
+  };
+  const handleRepeatOptionChange = (e) => {
+    event.repeatOption = e.target.value;
+    setRepeatOption(e.target.value);
+    if (e.target.value === "weekly") setRepeatDays([format(parseISO(eventDate), "eeee")]);
   };
   const handleRepeatDayToggle = (day) => {
     if (repeatDays.includes(day)) {
@@ -63,32 +74,16 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
       setRepeatDays((prevRepeatDays) => [...prevRepeatDays, day]);
     }
   };
-  const handleRepeatOptionChange = (e) => {
-    setRepeatOption(e.target.value);
-    if (e.target.value === "weekly") setRepeatDays([format(parseISO(eventDate), "eeee")]);
-  };
   const handleRepeatEndChange = (e) => {
     setRepeatEnd(e.target.value);
-    setValidEventEndDate(validateEventEndDate(e));
+    setValidEventEndDate(validateRequiredInputs(e));
   };
-  const handleEventAddPopupClose = () => {
+  const handleEventPopupClose = () => {
     setShow(false);
   };
 
   // * functions to validate inputs
-  const validateEventName = (e) => {
-    return e.target.value.length > 0;
-  };
-  const validateEventDate = (e) => {
-    return e.target.value.length > 0;
-  };
-  const validateEventEndDate = (e) => {
-    return e.target.value.length > 0;
-  };
-  const validateEventStartTime = (e) => {
-    return e.target.value.length > 0;
-  };
-  const validateEventEndTime = (e) => {
+  const validateRequiredInputs = (e) => {
     return e.target.value.length > 0;
   };
 
@@ -197,18 +192,19 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
 
   // * when day changes, show the popup and initialize the event
   useEffect(() => {
-    if (eventAdd) {
+    if (event) {
       // reset the event data
-      setEventColor(eventColors.blue);
-      setEventName("");
-      setEventDate(eventAdd ? format(eventAdd, "yyyy-MM-dd") : "");
-      setEventStartTime(eventAdd?.startTime ?? "");
-      setEventEndTime(eventAdd?.endTime ?? "");
-      setEventDescription("");
+      setEventColor(event?.color ?? eventColors.blue);
+      setEventName(event?.name ?? "");
+      setEventDate(event ? format(event.date, "yyyy-MM-dd") : "");
+      setEventStartTime(event?.startTime ?? "");
+      setEventEndTime(event?.endTime ?? "");
+      setEventDescription(event?.description ?? "");
+      setEventType(event?.type ?? "created");
+      setRepeatOption(event?.repeatOption ?? "none");
+
       setRepeatDays([]);
-      setRepeatOption("none");
       setRepeatEnd("");
-      setEventType(eventAdd?.type ?? "created");
 
       // reset all the validation variables
       setValidEventName(true);
@@ -220,15 +216,16 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
       // show the popup
       setShow(true);
     }
-  }, [eventAdd]);
+  }, [event]);
 
   // * when popup closes, set the event to null
   useEffect(() => {
     if (!show) {
       setShowColorMenu(false);
-      setEventAdd(null);
+      if (eventAdd) setEventAdd(null);
+      if (eventEdit) setEventEdit(null);
     }
-  }, [show, setEventAdd]);
+  }, [show, setEventAdd, setEventEdit]);
 
   // * when outside of the color menu is clicked, close the color menu
   useEffect(() => {
@@ -246,8 +243,8 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
   // * the popup ui
   return (
     <>
-      {eventAdd && (
-        <Popup open={show} setOpen={setShow} onClose={handleEventAddPopupClose}>
+      {event && (
+        <Popup open={show} setOpen={setShow} onClose={handleEventPopupClose}>
           {/* popup header */}
           <div className="bg-blue-200 h-12 flex items-center justify-center gap-1 rounded-t-lg w-full text-center font-bold p-3">
             <div>Add an Event</div>
@@ -479,7 +476,7 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
                         onChange={handleRepeatEndChange}
                         className={`
                           border border-gray-300 rounded-md w-full px-3 py-2 text-lg text-gray-900 focus:outline-none focus:ring-1 focus:ring-gray-500 
-                          ${validateEventEndDate ? "" : "ring-2 ring-red-500"}
+                          ${validEventEndDate ? "" : "ring-2 ring-red-500"}
                         `}
                         placeholder="Repeat end date"
                       />
@@ -509,7 +506,7 @@ export default function EventPopup({ user, eventAdd, setEventAdd, setEvents }) {
               </svg>
             </button>
             <button
-              onClick={handleEventAddPopupClose}
+              onClick={handleEventPopupClose}
               type="button"
               className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-800 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
             >

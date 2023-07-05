@@ -8,6 +8,7 @@ export default function CalendarMonth({
   selectedDay,
   selectedEvent,
   eventAdd,
+  eventEdit,
   highlightWeekends,
   setCurrentDate,
   getEventsForDay,
@@ -83,6 +84,7 @@ export default function CalendarMonth({
             const isCurrentMonth = isSameMonth(day, monthStart);
             const isSelectedDay = isSameDay(day, selectedDay);
             const isEventAdd = isSameDay(day, eventAdd);
+            const isEventEdit = isSameDay(day, eventEdit);
             // data required for styling calendar grid
             const isTopRow = index < 7;
             const isMiddleColumn = index % 7 === 0;
@@ -93,12 +95,14 @@ export default function CalendarMonth({
                 className={`
                   p-0.5 h-[92px] cursor-pointer text-center border-gray-400
                   ${isCurrentMonth ? "text-gray-800" : "text-gray-400"} 
-                  ${isSelectedDay || isEventAdd ? "bg-blue-200" : "bg-white"}
+                  ${isSelectedDay || isEventAdd || isEventEdit ? "bg-blue-200" : "bg-white"}
                   ${isTopRow ? "border-[0.5px]" : "border-[0.5px] border-t-0"}
                   ${isMiddleColumn ? "border-l-[0.5px]" : "border-l-0"}
                 `}
                 onClick={() => {
-                  handleNewEventClick(day);
+                  handleNewEventClick({
+                    date: day,
+                  });
                 }}
                 style={
                   { backgroundColor: isWeekend && !(isSelectedDay || isEventAdd) ? "#E5E4E2" : "" } // if it's a weekend, change the background color
@@ -136,7 +140,7 @@ export default function CalendarMonth({
                       <div
                         className={`
                           transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs/3 py-[0.9px] px-0.5 mb-0.5
-                          ${isEventSelected ? "scale-[102%]" : ""}
+                          ${isEventSelected ? "scale-[102%] shadow-2xl" : ""}
                         `}
                         key={event.id}
                         onClick={(e) => {
