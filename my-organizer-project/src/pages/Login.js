@@ -73,9 +73,10 @@ export default function LoginPage({ user }) {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Enter your email"
-                      className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500 ${
-                        error !== "" && "border-red-500"
-                      }`}
+                      className={`
+                        shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline focus:border-blue-500 
+                        ${error !== "" && "border-red-500"}
+                      `}
                     />
                   </div>
                   <div className="mb-6 relative">
@@ -89,9 +90,10 @@ export default function LoginPage({ user }) {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder="Enter your password"
-                        className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500 ${
-                          error !== "" && "border-red-500"
-                        }`}
+                        className={`
+                          shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 focus:border-blue-500 
+                          ${error !== "" && "border-red-500"}
+                        `}
                       />
                       <button
                         type="button"
