@@ -163,9 +163,10 @@ export default function SignupPage({ user }) {
                       type="text"
                       id="username"
                       placeholder="Enter a username"
-                      className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline ${
-                        validUsername ? "focus:border-blue-500" : "border-red-500"
-                      }`}
+                      className={`
+                        shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline 
+                        ${validUsername ? "focus:border-blue-500" : "border-red-500"}
+                      `}
                     />
                     {!validUsername && <p className="text-red-500 text-xs italic">Username should only contain letters, numbers, underscores, and hyphens</p>}
                   </div>
@@ -179,9 +180,10 @@ export default function SignupPage({ user }) {
                       type="email"
                       id="email"
                       placeholder="Enter your email"
-                      className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  ${
-                        validEmail ? "focus:border-blue-500" : "border-red-500"
-                      }`}
+                      className={`
+                        shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline
+                        ${validEmail ? "focus:border-blue-500" : "border-red-500"}
+                      `}
                     />
                     {!validEmail && <p className="text-red-500 text-xs italic">Please enter a valid email address</p>}
                   </div>
@@ -196,9 +198,10 @@ export default function SignupPage({ user }) {
                         type={passwordVisible ? "text" : "password"}
                         id="password"
                         placeholder="Enter a password"
-                        className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 ${
-                          validPassword ? "focus:border-blue-500" : "border-red-500"
-                        }`}
+                        className={`
+                          shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 
+                          ${validPassword ? "focus:border-blue-500" : "border-red-500"}
+                        `}
                       />
 
                       <button
@@ -248,9 +251,10 @@ export default function SignupPage({ user }) {
                         type={confirmPasswordVisible ? "text" : "password"}
                         id="confirmPassword"
                         placeholder="Re-enter your password"
-                        className={`shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 ${
-                          validConfirmPassword ? "focus:border-blue-500" : "border-red-500"
-                        }`}
+                        className={`
+                          shadow-md hover:shadow-lg bg-slate-100 appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline pr-10 
+                          ${validConfirmPassword ? "focus:border-blue-500" : "border-red-500"}
+                        `}
                       />
                       <button
                         type="button"

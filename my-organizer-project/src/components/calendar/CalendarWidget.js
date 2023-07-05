@@ -5,9 +5,9 @@ import Widget from "../ui/Widget";
 import CalendarHeader from "./CalendarHeader";
 import CalendarMonth from "./CalendarMonth";
 import CalendarWeek from "./CalendarWeek";
-import EventPopup from "./EventPopup";
+import EventInfoPopup from "./EventInfoPopup";
 import DayPopup from "./DayPopup";
-import EventAddPopup from "./EventAddPopup";
+import EventPopup from "./EventPopup";
 
 export default function CalendarWidget({ user }) {
   // * calendar settings
@@ -196,15 +196,11 @@ export default function CalendarWidget({ user }) {
       {/* day popup that will show up if a day is selected */}
       <DayPopup selectedDay={selectedDay} getEventsForDay={getEventsForDay} setSelectedDay={setSelectedDay} setDayEdit={setDayEdit} />
 
-      {/* day edit popup if user wants to edit the events in a day  */}
-
       {/* event popup that will show up if an event is selected */}
-      <EventPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />
+      <EventInfoPopup selectedEvent={selectedEvent} setSelectedEvent={setSelectedEvent} setEventEdit={setEventEdit} />
 
       {/* event add popup that shows up if user wants to create new event for a day */}
-      <EventAddPopup user={user} eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
-
-      {/* event edit popup that shows up if user wants to edit an event */}
+      <EventPopup user={user} eventAdd={eventAdd} setEventAdd={setEventAdd} setEvents={setEvents} />
     </Widget>
   );
 }

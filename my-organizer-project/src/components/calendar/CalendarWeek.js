@@ -172,7 +172,8 @@ export default function CalendarWeek({
                 return (
                   <div key={dayOfWeek} className="p-2 pb-0 text-center">
                     <div
-                      className={`font-bold transition hover:scale-110 cursor-pointer
+                      className={`
+                        font-bold transition hover:scale-110 cursor-pointer
                         ${isSelectedDay || isEventAdd || (isToday && isCurrentWeek) ? "text-blue-500 hover:text-blue-700" : "text-black"}
                       `}
                       onClick={() => {
@@ -204,7 +205,8 @@ export default function CalendarWeek({
                     }}
                   >
                     <div
-                      className={`font-bold w-8 transition hover:scale-110 p-1 rounded-full
+                      className={`
+                        font-bold w-8 transition hover:scale-110 p-1 rounded-full
                         ${isToday ? "text-white bg-blue-500 hover:bg-blue-700" : "hover:bg-gray-300"} 
                         ${isSelectedDay || isEventAdd ? "text-blue-500" : ""}
                       `}
@@ -224,7 +226,8 @@ export default function CalendarWeek({
 
         {/* all day slots for untimed events */}
         <div
-          className={`col-span-7 grid grid-cols-7 border-gray-600 ml-[95px]
+          className={`
+            col-span-7 grid grid-cols-7 border-gray-600 ml-[95px]
             ${isScrollAtTop ? "border-b-0" : "border-b-[0.5px] shadow-sm z-10"}
           `}
         >
@@ -235,7 +238,8 @@ export default function CalendarWeek({
             return (
               <div
                 key={weekDay.toString()}
-                className={`text-center h-full hover:bg-gray-200 cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[24px]
+                className={`
+                  text-center h-full cursor-pointer border-l-[0.5px] border-gray-400 relative p-0.5 min-h-[24px]
                   ${isEventAddUntimed ? "bg-blue-200" : ""}
                 `}
                 onClick={() => {
@@ -251,7 +255,8 @@ export default function CalendarWeek({
                   if ((index < 4 && allDayEvents.length <= 4) || (index < 3 && allDayEvents.length > 4)) {
                     return (
                       <div
-                        className={`transition hover:scale-[102%] rounded-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5
+                        className={`
+                          transition hover:scale-[102%] border-l-4 border-blue-300 rounded-r-sm overflow-hidden overflow-ellipsis whitespace-nowrap flex text-xs py-[0.9px] px-0.5 mb-0.5
                           ${isEventSelected ? "scale-[102%]" : ""}
                         `}
                         key={event.id}
@@ -259,7 +264,7 @@ export default function CalendarWeek({
                           e.stopPropagation();
                           handleEventClick(event);
                         }}
-                        style={{ backgroundColor: event.color }}
+                        style={{ backgroundColor: event.color, width: "95%" }}
                       >
                         <div className="font-bold">{event.name}</div>
                       </div>
@@ -325,7 +330,8 @@ export default function CalendarWeek({
                       return (
                         <div
                           key={hr}
-                          className={`border-l-[0.5px] border-gray-400 relative
+                          className={`
+                            border-l-[0.5px] border-gray-400 relative cursor-pointer p-0.5
                             ${hr === 0 && "border-t-[0.5px]"} 
                             ${hr === 23 ? "border-b-0" : "border-b-[0.5px]"}
                             ${isInNewEventRange ? "bg-blue-200" : ""}
@@ -335,10 +341,8 @@ export default function CalendarWeek({
                             e.stopPropagation();
                             const startTime = String(hr).padStart(2, "0") + ":00";
                             const endTime = String(hr + 1).padStart(2, "0") + ":00";
-
                             weekDay.startTime = startTime;
                             weekDay.endTime = endTime;
-
                             handleNewEventClick(weekDay);
                           }}
                         >
@@ -362,14 +366,14 @@ export default function CalendarWeek({
                               const eventTop = (hr - eventStartHour + eventStartMinute / 60) * 100;
                               let eventHeight;
                               if (eventEndHour < eventStartHour || (eventEndHour === eventStartHour && eventEndMinute < eventStartMinute)) {
-                                eventHeight = (24 - eventStartHour + eventEndHour + (eventEndMinute - eventStartMinute) / 60) * 99;
+                                eventHeight = (24 - eventStartHour + eventEndHour + (eventEndMinute - eventStartMinute) / 60) * 100;
                               } else {
-                                eventHeight = (eventEndHour - eventStartHour + (eventEndMinute - eventStartMinute) / 60) * 99;
+                                eventHeight = (eventEndHour - eventStartHour + (eventEndMinute - eventStartMinute) / 60) * 100;
                               }
                               return (
                                 <div
                                   key={event.id}
-                                  className="transition text-left hover:scale-[102%] border-l-4 border-blue-300 rounded-r-md overflow-hidden overflow-ellipsis whitespace-nowrap text-xs py-[0.9px] px-0.5 mb-0.5 z-20"
+                                  className="transition text-left hover:scale-[102%] border-l-4 border-blue-300 rounded-r-sm overflow-hidden overflow-ellipsis whitespace-nowrap text-xs py-[0.9px] px-0.5 mb-0.5 z-10"
                                   onClick={(e) => {
                                     e.stopPropagation();
                                     handleEventClick(event);
@@ -379,6 +383,7 @@ export default function CalendarWeek({
                                     top: `${eventTop}%`,
                                     height: `${eventHeight}%`,
                                     width: "95%",
+                                    position: "relative",
                                   }}
                                 >
                                   <div className="font-bold">{event.name}</div>

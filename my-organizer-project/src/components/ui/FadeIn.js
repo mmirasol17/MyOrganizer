@@ -11,8 +11,8 @@ function FadeIn({ fadeDelay = 500, children }) {
     <div className="transition-opacity">
       <div
         className={`
-            duration-${fadeDelay} ease-in-out
-            ${isMounted ? "opacity-100" : "opacity-0"}
+          duration-${fadeDelay} ease-in-out
+          ${isMounted ? "opacity-100" : "opacity-0"}
         `}
       >
         {children}
